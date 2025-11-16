@@ -28,31 +28,31 @@ const navigationItems: NavItem[] = [
     id: "profile",
     label: "Profile",
     icon: User,
-    href: "/dashboard/profile",
+    href: "/profile",
   },
   {
     id: "links",
     label: "Links",
     icon: Link,
-    href: "/dashboard/links",
+    href: "/links",
   },
   {
     id: "themes",
     label: "Themes",
     icon: Palette,
-    href: "/dashboard/themes",
+    href: "/themes",
   },
   {
     id: "analytics",
     label: "Analytics",
     icon: BarChart3,
-    href: "/dashboard/analytics",
+    href: "/analytics",
   },
   {
     id: "settings",
     label: "Settings",
     icon: Settings,
-    href: "/dashboard/settings",
+    href: "/settings",
   },
 ];
 
@@ -67,7 +67,7 @@ export function DashboardLayout({
   showPreview = false,
   previewContent,
 }: DashboardLayoutProps) {
-  const { user, loading, signOut } = useAuthStore();
+  const { user, loading, logout } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -93,7 +93,7 @@ export function DashboardLayout({
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
     router.push("/");
   };
 

@@ -2,6 +2,7 @@
 
 import { getOpenAIClient, getAnthropicClient } from '@/lib/ai-client';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { unstable_cacheLife as cacheLife } from 'next/cache';
 
 interface GitHubData {
   name?: string;
@@ -141,8 +142,11 @@ export async function generateCoverLetter(jobData: {
   return { success: true, coverLetter: response.text };
 }
 
-// Generate GitHub activity summary
+// Generate GitHub activity summary with caching
 export async function generateGitHubSummary(githubData: GitHubData) {
+  'use cache';
+  cacheLife('hours');
+  
   const aiClient = getOpenAIClient();
   
   const prompt = `Summarize the following GitHub activity in an engaging way for a developer portfolio:

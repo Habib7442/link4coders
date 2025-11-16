@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUserStore } from '@/stores/useUserStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 import { updateUserProfile } from '@/server/actions/profile.actions';
+import { checkUsernameAvailability } from '@/server/actions/username.actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
+import { TechStackSelector } from '@/components/dashboard/tech-stack-selector';
 import { toast } from 'sonner';
 
 interface ProfileEditorProps {
@@ -21,11 +23,12 @@ interface ProfileEditorProps {
     linkedin_url?: string;
     twitter_url?: string;
     website_url?: string;
+    tech_stacks?: string[];
   };
 }
 
 export function ProfileEditor({ initialData }: ProfileEditorProps) {
-  const { user, setUser } = useUserStore();
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -35,39 +38,33 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
     github_url: '',
     linkedin_url: '',
     twitter_url: '',
-    website_url: ''
+    website_url: '',
+    tech_stacks: [] as string[]
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [usernameCheck, setUsernameCheck] = useState({
+    checking: false,
+    available: false,
+    error: ''
+  });
 
-  // Initialize form with user data
+  // Initialize form with initialData
   useEffect(() => {
-    // Always use initialData if available, otherwise use user data from store
-    const dataToUse = initialData || (user ? {
-      name: user.name,
-      username: user.username,
-      title: user.title,
-      bio: user.bio,
-      avatar_url: user.avatar_url,
-      github_url: user.github_url,
-      linkedin_url: user.linkedin_url,
-      twitter_url: user.twitter_url,
-      website_url: user.website_url
-    } : null);
-    
-    if (dataToUse) {
+    if (initialData) {
       setFormData({
-        name: dataToUse.name || '',
-        username: dataToUse.username || '',
-        title: dataToUse.title || '',
-        bio: dataToUse.bio || '',
-        avatar_url: dataToUse.avatar_url || '',
-        github_url: dataToUse.github_url || '',
-        linkedin_url: dataToUse.linkedin_url || '',
-        twitter_url: dataToUse.twitter_url || '',
-        website_url: dataToUse.website_url || ''
+        name: initialData.name || '',
+        username: initialData.username || '',
+        title: initialData.title || '',
+        bio: initialData.bio || '',
+        avatar_url: initialData.avatar_url || '',
+        github_url: initialData.github_url || '',
+        linkedin_url: initialData.linkedin_url || '',
+        twitter_url: initialData.twitter_url || '',
+        website_url: initialData.website_url || '',
+        tech_stacks: initialData.tech_stacks || []
       });
     }
-  }, [user, initialData]);
+  }, [initialData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -84,6 +81,47 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
     }));
   };
 
+  const checkUsername = async () => {
+    if (!formData.username) {
+      setUsernameCheck({
+        checking: false,
+        available: false,
+        error: 'Username is required'
+      });
+      return;
+    }
+
+    setUsernameCheck({
+      checking: true,
+      available: false,
+      error: ''
+    });
+
+    try {
+      const result = await checkUsernameAvailability(formData.username, user?.id);
+      
+      if (result.success) {
+        setUsernameCheck({
+          checking: false,
+          available: result.available,
+          error: result.available ? '' : 'Username is already taken'
+        });
+      } else {
+        setUsernameCheck({
+          checking: false,
+          available: false,
+          error: result.error || 'Failed to check username'
+        });
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      setUsernameCheck({
+        checking: false,
+        available: false,
+        error: 'An unexpected error occurred'
+      });
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -95,15 +133,23 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
     setIsSaving(true);
     
     try {
-      const result = await updateUserProfile(user.id, formData);
+      // Map form fields to database fields
+      const profileData = {
+        full_name: formData.name,
+        profile_slug: formData.username,
+        profile_title: formData.title,
+        bio: formData.bio,
+        avatar_url: formData.avatar_url,
+        github_url: formData.github_url,
+        linkedin_url: formData.linkedin_url,
+        twitter_username: formData.twitter_url ? formData.twitter_url.replace('https://twitter.com/', '') : undefined,
+        website_url: formData.website_url,
+        tech_stacks: formData.tech_stacks
+      };
+      
+      const result = await updateUserProfile(user.id, profileData);
       
       if (result.success) {
-        // Update Zustand store with new data
-        setUser({
-          ...user,
-          ...formData
-        });
-        
         toast.success('Profile updated successfully!');
       } else {
         toast.error(result.error || 'Failed to update profile');
@@ -155,14 +201,47 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
             <Label htmlFor="username" className="text-sm font-medium text-gray-200 mb-2 block">
               Username
             </Label>
-            <Input
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#54E0FF] focus:border-[#54E0FF]"
-              placeholder="Enter your username"
-            />
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Input
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#54E0FF] focus:border-[#54E0FF] pr-10"
+                  placeholder="Enter your username"
+                />
+                {usernameCheck.checking && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <div className="w-4 h-4 border-2 border-[#54E0FF] border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                {usernameCheck.available && !usernameCheck.checking && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500">
+                    ✓
+                  </div>
+                )}
+                {!usernameCheck.available && usernameCheck.error && !usernameCheck.checking && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-500">
+                    ✗
+                  </div>
+                )}
+              </div>
+              <Button
+                type="button"
+                onClick={checkUsername}
+                disabled={usernameCheck.checking || !formData.username}
+                className="bg-[#28282b] border border-[#33373b] text-white hover:bg-[#33373b] hover:border-[#54E0FF]/30 font-medium text-[14px] px-3"
+              >
+                Check
+              </Button>
+            </div>
+            {usernameCheck.error && !usernameCheck.checking && (
+              <p className="text-red-400 text-[12px] mt-1">{usernameCheck.error}</p>
+            )}
+            {usernameCheck.available && !usernameCheck.checking && (
+              <p className="text-green-400 text-[12px] mt-1">Username is available!</p>
+            )}
           </div>
           
           <div className="md:col-span-2">
@@ -192,6 +271,17 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
               className="bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#54E0FF] focus:border-[#54E0FF]"
               placeholder="Tell us about yourself..."
             />
+          </div>
+          
+          <div className="md:col-span-2">
+            <Label className="text-sm font-medium text-gray-200 mb-2 block">
+              Tech Stack
+            </Label>
+            <TechStackSelector
+              selectedTechStacks={formData.tech_stacks}
+              onChange={(techStacks) => setFormData(prev => ({ ...prev, tech_stacks: techStacks }))}
+            />
+            <p className="text-[12px] text-gray-400 mt-1">Select technologies you work with to showcase your skills.</p>
           </div>
         </div>
         
@@ -229,7 +319,7 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
             
             <div>
               <Label htmlFor="twitter_url" className="text-sm font-medium text-gray-200 mb-2 block">
-                Twitter
+                X (formerly Twitter)
               </Label>
               <Input
                 id="twitter_url"
@@ -237,7 +327,7 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
                 value={formData.twitter_url}
                 onChange={handleChange}
                 className="bg-white/10 border border-white/20 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-[#54E0FF] focus:border-[#54E0FF]"
-                placeholder="https://twitter.com/username"
+                placeholder="https://x.com/username"
               />
             </div>
             

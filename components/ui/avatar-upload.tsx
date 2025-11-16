@@ -3,8 +3,8 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Camera, Upload, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createClient } from '@supabase/supabase-js'
-import { useUserStore } from '@/stores/useUserStore'
+import { createClient } from '@/lib/supabase-client'
+import { useAuthStore } from '@/stores/useAuthStore'
 
 interface AvatarUploadProps {
   currentAvatarUrl?: string
@@ -24,13 +24,10 @@ export function AvatarUpload({
   const [dragActive, setDragActive] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { user } = useUserStore()
+  const { user } = useAuthStore()
 
-  // Create Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+  // Create authenticated Supabase client
+  const supabase = createClient()
 
   const sizeClasses = {
     sm: 'w-16 h-16',
@@ -116,6 +113,8 @@ export function AvatarUpload({
   const handleFileSelect = useCallback(async (file: File) => {
     setError(null)
     
+    console.log('Starting file upload...', { fileName: file.name, fileSize: file.size, userId: user?.id });
+    
     // Validate image
     const validation = validateImage(file)
     if (!validation.isValid) {
@@ -131,7 +130,9 @@ export function AvatarUpload({
       setPreviewUrl(preview)
 
       // Process image
+      console.log('Resizing image...');
       const processedBlob = await resizeImage(file, 200)
+      console.log('Image resized successfully');
       
       if (!user?.id) {
         throw new Error('User not authenticated')
@@ -139,6 +140,8 @@ export function AvatarUpload({
 
       // Upload to Supabase Storage
       const fileName = `${user.id}/avatar-${Date.now()}.jpg`
+      console.log('Uploading to Supabase...', fileName);
+      
       const { data, error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, processedBlob, {
@@ -147,23 +150,32 @@ export function AvatarUpload({
         })
 
       if (uploadError) {
+        console.error('Upload error:', uploadError);
         throw uploadError
       }
+      
+      console.log('Upload successful:', data);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName)
+      
+      console.log('Public URL:', publicUrl);
 
       // Update user's avatar_url in database
+      console.log('Updating user profile...');
       const { error: updateError } = await supabase
         .from('users')
         .update({ avatar_url: publicUrl })
         .eq('id', user.id)
 
       if (updateError) {
+        console.error('Database update error:', updateError);
         throw updateError
       }
+      
+      console.log('Profile updated successfully');
 
       // Clean up old preview
       if (previewUrl) {
@@ -241,7 +253,7 @@ export function AvatarUpload({
           <div className="w-full h-full flex items-center justify-center">
             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
               <span className="text-white font-medium text-sm">
-                {user?.name?.[0] || user?.email?.[0] || 'U'}
+                {user?.email?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
           </div>

@@ -7,13 +7,16 @@ interface UserState {
     name: string;
     email: string;
     username: string;
+    profile_slug?: string;
     avatar_url: string;
     title: string;
+    profile_title?: string;
     bio: string;
     github_url?: string;
     linkedin_url?: string;
     twitter_url?: string;
     website_url?: string;
+    tech_stacks?: string[];
   } | null;
   isAuthenticated: boolean;
   selectedTemplateId: string | null;

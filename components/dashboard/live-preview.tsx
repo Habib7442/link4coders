@@ -35,7 +35,7 @@ export function LivePreview({ profileData }: LivePreviewProps) {
   const socialLinks = [
     { name: 'GitHub', url: github_url, icon: 'GH' },
     { name: 'LinkedIn', url: linkedin_url, icon: 'LI' },
-    { name: 'Twitter', url: twitter_url, icon: 'TW' },
+    { name: 'X', url: twitter_url, icon: 'X' },
     { name: 'Website', url: website_url, icon: 'W' }
   ].filter(link => link.url);
 

@@ -3,15 +3,16 @@
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 interface ProfileData {
-  name?: string;
-  username?: string;
+  full_name?: string;
+  profile_slug?: string;
   bio?: string;
   avatar_url?: string;
   github_url?: string;
   linkedin_url?: string;
-  twitter_url?: string;
+  twitter_username?: string;
   website_url?: string;
-  title?: string;
+  profile_title?: string;
+  tech_stacks?: string[];
 }
 
 // Get user profile
