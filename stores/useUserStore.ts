@@ -10,6 +10,10 @@ interface UserState {
     avatar_url: string;
     title: string;
     bio: string;
+    github_url?: string;
+    linkedin_url?: string;
+    twitter_url?: string;
+    website_url?: string;
   } | null;
   isAuthenticated: boolean;
   selectedTemplateId: string | null;

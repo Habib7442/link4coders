@@ -1,3 +1,6 @@
+import React from "react";
+import { Hero } from "@/components/Hero";
+import { Header } from "@/components/ui/header";
 
 export default function MarketingLayout({
   children,
@@ -6,7 +9,10 @@ export default function MarketingLayout({
 }) {
   return (
     <>
-      <main>{children}</main>
+      <Header />
+      <main>
+        {children}
+      </main>
     </>
   );
 }

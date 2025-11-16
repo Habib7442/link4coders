@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
 
   if (code) {
-    const supabase = createServerSupabaseClient()
+    const supabase = await createServerSupabaseClient()
     
     // Exchange the code for a session
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
@@ -17,10 +17,10 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL('/login?error=auth_failed', request.url))
     }
     
-    // Redirect to home page after successful login
-    return NextResponse.redirect(new URL('/', request.url))
+    // Redirect to profile page after successful login
+    return NextResponse.redirect(new URL('/profile', request.url))
   }
 
   // Redirect to login if no code is present
-  return NextResponse.redirect(new URL('/', request.url))
+  return NextResponse.redirect(new URL('/login', request.url))
 }

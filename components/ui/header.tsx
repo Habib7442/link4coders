@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from './button';
 import { AuthModal } from './auth-modal';
@@ -12,6 +13,10 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, signOut, loading } = useAuthStore();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Only show header on landing page (home page)
+  const shouldShowHeader = pathname === '/' || pathname === '/home';
 
   const handleSignOut = async () => {
     await signOut();

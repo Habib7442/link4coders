@@ -51,7 +51,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
       const success = await signInWithEmail(email, password)
       if (success) {
         onClose() // Close modal on successful sign-in
-        router.push('/home') // Redirect to home page
+        router.push('/profile') // Redirect to profile page
       }
     } else {
       const success = await signUpWithEmail(email, password, fullName)

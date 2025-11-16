@@ -19,8 +19,8 @@ export function Hero() {
     if (user) {
       // Set navigating state to show loading indicator
       setIsNavigating(true);
-      // Navigate to home page
-      router.push("/home");
+      // Navigate to profile page
+      router.push("/profile");
     } else {
       // Open authentication modal
       setIsAuthModalOpen(true);

@@ -16,17 +16,17 @@ interface ProfileData {
 
 // Get user profile
 export async function getUserProfile(userId: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select('*')
     .eq('id', userId)
     .single();
   
   if (error) {
     console.error('Error fetching user profile:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Failed to fetch profile data' };
   }
   
   return { success: true, data };
@@ -34,10 +34,10 @@ export async function getUserProfile(userId: string) {
 
 // Update user profile
 export async function updateUserProfile(userId: string, profileData: ProfileData) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
-    .from('profiles')
+    .from('users')
     .update(profileData)
     .eq('id', userId)
     .select()
@@ -45,7 +45,7 @@ export async function updateUserProfile(userId: string, profileData: ProfileData
   
   if (error) {
     console.error('Error updating user profile:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Failed to update profile data' };
   }
   
   return { success: true, data };
@@ -53,10 +53,10 @@ export async function updateUserProfile(userId: string, profileData: ProfileData
 
 // Get user's public profile
 export async function getPublicProfile(username: string) {
-  const supabase = createServerSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   
   const { data, error } = await supabase
-    .from('profiles')
+    .from('users')
     .select(`
       *,
       projects (*),
@@ -67,7 +67,7 @@ export async function getPublicProfile(username: string) {
   
   if (error) {
     console.error('Error fetching public profile:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: 'Failed to fetch public profile data' };
   }
   
   return { success: true, data };
