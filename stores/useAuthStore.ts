@@ -250,7 +250,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
       
       console.log('✅ User authenticated:', user.email)
-      set({ user, loading: false })
+      set({ user, loading: false, initialized: true })
       
       // Fetch user profile from public.users table
       console.log('🔍 Fetching user profile from database...')
@@ -262,10 +262,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       if (profileError) {
         console.error('❌ Error fetching user profile:', profileError)
-        set({ profile: null, initialized: true })
+        set({ profile: null })
       } else {
         console.log('✅ Profile loaded:', profile.email)
-        set({ profile: profile as Profile, initialized: true })
+        set({ profile: profile as Profile })
       }
     } catch (error) {
       console.error('❌ Error in fetchUserProfile:', error)
