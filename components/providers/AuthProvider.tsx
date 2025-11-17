@@ -34,7 +34,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
         
         if (session?.user) {
-          console.log('✅ Initial session found:', session.user.email)
+          console.log('✅ Session found:', session.user.email)
           setUser(session.user)
           
           // Fetch profile
@@ -77,13 +77,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       async (event, session) => {
         if (!mounted) return
         
-        console.log('🔄 Auth state change event:', event)
-        console.log('📦 Session:', session ? 'exists' : 'null')
+        console.log('🔄 Auth event:', event)
         
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('✅ User signed in:', session.user.email)
           setUser(session.user)
-          setLoading(true)
           
           // Fetch user profile from database
           const { data: profile } = await supabase
@@ -93,13 +90,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .single()
           
           if (mounted && profile) {
-            console.log('✅ Profile fetched:', profile.email)
             setProfile(profile)
           }
           
           if (mounted) {
-            setLoading(false)
             setInitialized(true)
+            setLoading(false)
           }
         } else if (event === 'SIGNED_OUT') {
           console.log('🔓 User signed out')
@@ -113,7 +109,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     return () => {
       mounted = false
-      console.log('🛑 AuthProvider: Cleaning up auth subscription')
       subscription.unsubscribe()
     }
   }, [setUser, setProfile, setInitialized, setLoading])
