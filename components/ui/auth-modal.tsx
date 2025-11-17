@@ -54,8 +54,11 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
       }
     } else {
       const success = await signUpWithEmail(email, password, fullName)
-      // For sign-up, we don't close the modal immediately as user needs to check email
-      // The success message is displayed in the modal
+      if (success) {
+        // Switch to sign-in mode after successful signup
+        setMode('signin')
+        setPassword('') // Clear password for security
+      }
     }
   }
 

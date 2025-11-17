@@ -1,6 +1,7 @@
 'use server';
 
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { revalidatePath } from 'next/cache';
 
 interface ProfileData {
   full_name?: string;
@@ -51,6 +52,9 @@ export async function updateUserProfile(userId: string, profileData: ProfileData
     console.error('Error updating user profile:', error);
     return { success: false, error: 'Failed to update profile data' };
   }
+  
+  // Revalidate the profile page to show fresh data
+  revalidatePath('/profile');
   
   return { success: true, data };
 }

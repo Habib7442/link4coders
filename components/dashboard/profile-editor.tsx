@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { updateUserProfile } from '@/server/actions/profile.actions';
 import { checkUsernameAvailability } from '@/server/actions/username.actions';
@@ -30,6 +31,7 @@ interface ProfileEditorProps {
 }
 
 export function ProfileEditor({ initialData }: ProfileEditorProps) {
+  const router = useRouter();
   const { user } = useAuthStore();
   const [formData, setFormData] = useState({
     name: '',
@@ -156,6 +158,8 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
       
       if (result.success) {
         toast.success('Profile updated successfully!');
+        // Trigger a soft refresh to update the page with new data
+        router.refresh();
       } else {
         toast.error(result.error || 'Failed to update profile');
       }

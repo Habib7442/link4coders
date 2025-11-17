@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { createClient } from '@/lib/supabase-client'
 import type { User, AuthError } from '@supabase/supabase-js'
+import { toast } from 'sonner'
 
 interface Profile {
   id: string
@@ -66,11 +67,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       if (error) {
         set({ error: error.message, loading: false })
+        toast.error(error.message || 'Failed to sign in')
         return false
       }
       
       if (data?.user) {
         set({ user: data.user, loading: false })
+        toast.success('Successfully signed in!')
         
         // Fetch profile
         get().fetchUserProfile()
@@ -79,7 +82,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       return false
     } catch (error) {
-      set({ error: (error as AuthError).message, loading: false })
+      const errorMessage = (error as AuthError).message
+      set({ error: errorMessage, loading: false })
+      toast.error(errorMessage || 'Failed to sign in')
       return false
     }
   },
@@ -101,26 +106,32 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       if (error) {
         set({ error: error.message, loading: false })
+        toast.error(error.message || 'Failed to create account')
         return false
       }
       
       if (data?.user) {
         // Check if email confirmation is required
         if (!data.user.identities?.length) {
+          const message = 'Please check your email for a confirmation link.'
           set({ 
-            error: 'Please check your email for a confirmation link.',
+            error: message,
             loading: false 
           })
+          toast.info(message)
           return false
         }
         
         set({ user: data.user, loading: false })
+        toast.success('Account created successfully!')
         return true
       }
       
       return false
     } catch (error) {
-      set({ error: (error as AuthError).message, loading: false })
+      const errorMessage = (error as AuthError).message
+      set({ error: errorMessage, loading: false })
+      toast.error(errorMessage || 'Failed to create account')
       return false
     }
   },
