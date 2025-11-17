@@ -2,23 +2,14 @@
 
 import { DashboardLayout } from '@/components/dashboard/dashboard-layout';
 import { LinkManager } from '@/components/dashboard/link-manager';
-import { useState } from 'react';
 
 export default function LinksPage() {
-  const [previewRefresh, setPreviewRefresh] = useState(0);
-
-  const previewContent = (
-    <div className="h-full flex items-center justify-center text-gray-400">
-      Link Preview
-    </div>
-  );
-
   const handlePreviewRefresh = () => {
-    setPreviewRefresh((prev) => prev + 1);
+    // No-op since preview is removed
   };
 
   return (
-    <DashboardLayout showPreview={true} previewContent={previewContent}>
+    <DashboardLayout showPreview={false}>
       <div className="p-4 md:p-6">
         <div className="w-full mx-auto">
           {/* Page Header */}

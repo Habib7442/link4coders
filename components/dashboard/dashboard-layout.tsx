@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   LogOut,
   Loader2,
+  Sparkles,
 } from "lucide-react";
 
 interface NavItem {
@@ -41,6 +42,12 @@ const navigationItems: NavItem[] = [
     label: "Templates",
     icon: Palette,
     href: "/templates",
+  },
+  {
+    id: "ai-management",
+    label: "AI Assistant",
+    icon: Sparkles,
+    href: "/ai-management",
   },
   {
     id: "analytics",

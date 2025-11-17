@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { AvatarUpload } from '@/components/ui/avatar-upload';
 import { TechStackSelector } from '@/components/dashboard/tech-stack-selector';
 import { toast } from 'sonner';
@@ -24,6 +25,7 @@ interface ProfileEditorProps {
     twitter_url?: string;
     website_url?: string;
     tech_stacks?: string[];
+    show_github_contributions?: boolean;
   };
 }
 
@@ -39,7 +41,8 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
     linkedin_url: '',
     twitter_url: '',
     website_url: '',
-    tech_stacks: [] as string[]
+    tech_stacks: [] as string[],
+    show_github_contributions: true
   });
   const [isSaving, setIsSaving] = useState(false);
   const [usernameCheck, setUsernameCheck] = useState({
@@ -61,7 +64,8 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
         linkedin_url: initialData.linkedin_url || '',
         twitter_url: initialData.twitter_url || '',
         website_url: initialData.website_url || '',
-        tech_stacks: initialData.tech_stacks || []
+        tech_stacks: initialData.tech_stacks || [],
+        show_github_contributions: initialData.show_github_contributions !== undefined ? initialData.show_github_contributions : true
       });
     }
   }, [initialData]);
@@ -144,7 +148,8 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
         linkedin_url: formData.linkedin_url,
         twitter_username: formData.twitter_url ? formData.twitter_url.replace('https://twitter.com/', '') : undefined,
         website_url: formData.website_url,
-        tech_stacks: formData.tech_stacks
+        tech_stacks: formData.tech_stacks,
+        show_github_contributions: formData.show_github_contributions
       };
       
       const result = await updateUserProfile(user.id, profileData);
@@ -344,6 +349,26 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
                 placeholder="https://yourwebsite.com"
               />
             </div>
+          </div>
+        </div>
+        
+        {/* Display Settings */}
+        <div className="border-t border-white/10 pt-6">
+          <h3 className="text-lg font-medium text-white mb-4">Display Settings</h3>
+          <div className="flex items-center justify-between py-3 px-4 bg-white/5 rounded-lg border border-white/10">
+            <div className="flex-1">
+              <Label htmlFor="show-github-contributions" className="text-sm font-medium text-gray-200 cursor-pointer">
+                Show GitHub Contributions
+              </Label>
+              <p className="text-xs text-gray-400 mt-1">
+                Display your GitHub contribution graph on your public profile
+              </p>
+            </div>
+            <Switch
+              id="show-github-contributions"
+              checked={formData.show_github_contributions}
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, show_github_contributions: checked }))}
+            />
           </div>
         </div>
         

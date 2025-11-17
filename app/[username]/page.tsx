@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getPublicProfile } from '@/server/actions/public-profile.actions';
 import { ClickableLink } from '@/components/public-profile/clickable-link';
+import { GitHubContributions } from '@/components/public-profile/github-contributions';
+import AppleVisionProTemplate from '@/components/templates/AppleVisionPro';
+import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -25,8 +28,40 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
     notFound();
   }
   
-  const { user, links } = result;
+  const { user, links, voiceAssistant } = result;
   
+  // Get VAPI public key from env
+  const vapiPublicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || '';
+  
+  // Extract GitHub username from GitHub URL
+  let githubUsername = user.github_username || '';
+  if (!githubUsername && user.github_url) {
+    // Extract username from URLs like:
+    // https://github.com/Habib7442
+    // github.com/Habib7442
+    const match = user.github_url.match(/github\.com\/([a-zA-Z0-9_-]+)/i);
+    if (match && match[1]) {
+      githubUsername = match[1];
+    }
+  }
+  
+  // Get user's template (default to developer-dark)
+  const templateId = user.theme_id || 'developer-dark';
+  
+  // Render Apple Vision Pro template
+  if (templateId === 'apple-vision-pro') {
+    return (
+      <AppleVisionProTemplate 
+        user={user} 
+        links={links as Record<string, Array<{ id: string; url: string; title: string; description?: string; icon_type?: string; link_image?: string }>>}
+        voiceAssistant={voiceAssistant}
+        vapiPublicKey={vapiPublicKey}
+        githubUsername={githubUsername}
+      />
+    );
+  }
+  
+  // For other templates, use Developer Dark as fallback for now
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#18181a] to-[#1e1e20]">
       <div className="container mx-auto px-4 py-12">
@@ -110,6 +145,18 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
             )}
           </div>
           
+          {/* AI Voice Assistant */}
+          {voiceAssistant && vapiPublicKey && (
+            <div className="mb-8">
+              <VapiVoiceButton
+                userId={user.id}
+                assistantId={voiceAssistant.assistant_id}
+                publicKey={vapiPublicKey}
+                firstMessage={voiceAssistant.first_message || undefined}
+              />
+            </div>
+          )}
+          
           {/* Tech Stacks */}
           {user.tech_stacks && user.tech_stacks.length > 0 && (
             <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -139,6 +186,11 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
           )}
           </div>
           
+          {/* GitHub Contributions */}
+          {githubUsername && user.show_github_contributions !== false && (
+            <GitHubContributions githubUsername={githubUsername} />
+          )}
+          
           {/* Links */}
           <div>
           {Object.entries(links).map(([category, categoryLinks]) => {
@@ -162,7 +214,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                   <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent ml-4" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(categoryLinks as Array<{ id: string; url: string; title: string; description?: string; icon_type?: string }>).map((link) => (
+                  {(categoryLinks as Array<{ id: string; url: string; title: string; description?: string; icon_type?: string; link_image?: string }>).map((link) => (
                     <ClickableLink
                       key={link.id}
                       linkId={link.id}
@@ -170,6 +222,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                       title={link.title}
                       description={link.description}
                       iconType={link.icon_type}
+                      linkImage={link.link_image}
                     />
                   ))}
                 </div>

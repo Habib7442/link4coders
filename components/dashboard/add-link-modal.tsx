@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X, Link as LinkIcon, Github, Linkedin, Globe, Mail, BookOpen, Award, Upload } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Link as LinkIcon, Github, Linkedin, Globe, Mail, BookOpen, Award, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,8 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { createLink, updateLink } from '@/server/actions/link.actions';
+import { createClient } from '@/lib/supabase-client';
+import Image from 'next/image';
 
 interface AddLinkModalProps {
   isOpen: boolean;
@@ -36,6 +38,7 @@ interface AddLinkModalProps {
     category: string;
     icon_type?: string;
     live_project_url?: string;
+    link_image?: string;
   } | null;
   defaultCategory?: string;
 }
@@ -77,9 +80,14 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
     description: '',
     category: defaultCategory || 'contact',
     icon_type: 'link',
-    live_project_url: ''
+    live_project_url: '',
+    link_image: ''
   });
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editLink) {
@@ -89,8 +97,10 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
         description: editLink.description || '',
         category: editLink.category,
         icon_type: editLink.icon_type || 'link',
-        live_project_url: editLink.live_project_url || ''
+        live_project_url: editLink.live_project_url || '',
+        link_image: editLink.link_image || ''
       });
+      setImagePreview(editLink.link_image || '');
     } else {
       setFormData({
         title: '',
@@ -98,10 +108,88 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
         description: '',
         category: defaultCategory || 'contact',
         icon_type: 'link',
-        live_project_url: ''
+        live_project_url: '',
+        link_image: ''
       });
+      setImagePreview('');
     }
+    setImageFile(null);
   }, [editLink, defaultCategory, isOpen]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData({ ...formData, link_image: '' });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImageToSupabase = async (): Promise<string | null> => {
+    if (!imageFile) return formData.link_image || null;
+
+    try {
+      setUploadingImage(true);
+      const supabase = createClient();
+      
+      // Generate unique filename
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${userId}/${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('link-images')
+        .upload(fileName, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        console.error('Upload error:', error);
+        toast.error('Failed to upload image');
+        return null;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('link-images')
+        .getPublicUrl(data.path);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +210,18 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
     setLoading(true);
 
     try {
+      // Upload image if there's a new file
+      let imageUrl = formData.link_image;
+      if (imageFile) {
+        const uploadedUrl = await uploadImageToSupabase();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      } else if (!imagePreview && editLink?.link_image) {
+        // If image was removed (no preview and edit had image), set to empty string
+        imageUrl = '';
+      }
+
       let result;
       
       if (editLink) {
@@ -131,7 +231,8 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
           description: formData.description.trim() || undefined,
           category: formData.category,
           icon_type: formData.icon_type,
-          live_project_url: formData.live_project_url.trim() || undefined
+          live_project_url: formData.live_project_url.trim() || undefined,
+          link_image: imageUrl === '' ? null : (imageUrl || undefined)
         });
       } else {
         result = await createLink(userId, {
@@ -140,7 +241,8 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
           description: formData.description.trim() || undefined,
           category: formData.category,
           icon_type: formData.icon_type,
-          live_project_url: formData.live_project_url.trim() || undefined
+          live_project_url: formData.live_project_url.trim() || undefined,
+          link_image: imageUrl || undefined
         });
       }
 
@@ -167,7 +269,7 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="glassmorphic max-w-xl">
+      <DialogContent className="glassmorphic max-w-xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-white text-xl">
             {editLink ? 'Edit Link' : 'Add New Link'}
@@ -177,7 +279,7 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4 overflow-y-auto pr-2">
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-white">
@@ -297,6 +399,64 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
             </div>
           )}
 
+          {/* Image Upload (optional for all categories except contact) */}
+          {formData.category !== 'contact' && (
+            <div className="space-y-2">
+              <Label htmlFor="link_image" className="text-white">
+                Link Image (Optional)
+              </Label>
+              <div className="space-y-3">
+                {/* Image Preview */}
+                {imagePreview && (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border border-white/10">
+                    <Image
+                      src={imagePreview}
+                      alt="Link preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      disabled={loading || uploadingImage}
+                      className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-full transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                
+                {/* Upload Button */}
+                {!imagePreview && (
+                  <div className="flex items-center gap-3">
+                    <input
+                      ref={fileInputRef}
+                      id="link_image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      disabled={loading || uploadingImage}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={loading || uploadingImage}
+                      className="border-white/20 text-gray-300 hover:text-white hover:bg-white/5"
+                    >
+                      <ImageIcon className="w-4 h-4 mr-2" />
+                      Choose Image
+                    </Button>
+                    <span className="text-xs text-gray-400">
+                      Max 5MB • JPG, PNG, GIF
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           <div className="flex justify-end gap-3 pt-4">
             <Button
@@ -310,10 +470,10 @@ export function AddLinkModal({ isOpen, onClose, onSuccess, userId, editLink, def
             </Button>
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || uploadingImage}
               className="bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] text-[#18181a] hover:opacity-90"
             >
-              {loading ? 'Saving...' : editLink ? 'Update Link' : 'Add Link'}
+              {uploadingImage ? 'Uploading Image...' : loading ? 'Saving...' : editLink ? 'Update Link' : 'Add Link'}
             </Button>
           </div>
         </form>

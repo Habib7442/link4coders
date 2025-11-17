@@ -370,6 +370,7 @@ export async function createLink(
     category: string;
     icon_type?: string;
     live_project_url?: string;
+    link_image?: string;
   }
 ) {
   try {
@@ -396,6 +397,7 @@ export async function createLink(
         category: linkData.category,
         icon_type: linkData.icon_type || 'link',
         live_project_url: linkData.live_project_url,
+        link_image: linkData.link_image,
         position,
         is_active: true,
         click_count: 0
@@ -426,6 +428,7 @@ export async function updateLink(
     category?: string;
     icon_type?: string;
     live_project_url?: string;
+    link_image?: string | null;
   }
 ) {
   try {

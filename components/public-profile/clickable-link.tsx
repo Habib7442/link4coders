@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import { ExternalLink, Github, Linkedin, Globe, Mail, BookOpen, Award, Link2 } from 'lucide-react';
+import Image from 'next/image';
 
 interface ClickableLinkProps {
   linkId: string;
@@ -9,10 +10,11 @@ interface ClickableLinkProps {
   title: string;
   description?: string;
   iconType?: string;
+  linkImage?: string;
   children?: React.ReactNode;
 }
 
-export function ClickableLink({ linkId, url, title, description, iconType }: ClickableLinkProps) {
+export function ClickableLink({ linkId, url, title, description, iconType, linkImage }: ClickableLinkProps) {
   const handleClick = useCallback(async () => {
     console.log('🔵 [ClickableLink] Link clicked:', { linkId, title, url });
     
@@ -71,9 +73,22 @@ export function ClickableLink({ linkId, url, title, description, iconType }: Cli
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-[#54E0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[#54E0FF]/20"
+      className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-[#54E0FF]/50 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[#54E0FF]/20 flex flex-col"
     >
-      <div className="p-5">
+      {/* Link Image Banner (if provided) */}
+      {linkImage && (
+        <div className="relative w-full h-48 overflow-hidden flex-shrink-0">
+          <Image
+            src={linkImage}
+            alt={title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#18181a] via-transparent to-transparent" />
+        </div>
+      )}
+      
+      <div className="p-5 flex-1">
         <div className="flex items-center gap-4">
           {/* Icon */}
           <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-[#54E0FF]/20 to-[#29ADFF]/20 border border-[#54E0FF]/30 flex items-center justify-center text-[#54E0FF] group-hover:scale-110 transition-transform duration-300">

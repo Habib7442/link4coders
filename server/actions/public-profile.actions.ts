@@ -15,7 +15,7 @@ export async function getPublicProfile(username: string) {
       .single();
     
     if (userError || !user) {
-      return { success: false, user: null, links: [], appearanceSettings: null };
+      return { success: false, user: null, links: [], appearanceSettings: null, voiceAssistant: null };
     }
     
     // Get user links
@@ -31,6 +31,14 @@ export async function getPublicProfile(username: string) {
       .from('user_appearance_settings')
       .select('*')
       .eq('user_id', user.id)
+      .single();
+    
+    // Get voice assistant config (if exists)
+    const { data: voiceAssistant } = await supabase
+      .from('ai_voice_assistants')
+      .select('assistant_id, assistant_name, first_message, is_active')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
       .single();
     
     // Organize links by category
@@ -56,10 +64,11 @@ export async function getPublicProfile(username: string) {
       user,
       links: linksByCategory,
       appearanceSettings,
+      voiceAssistant,
       categoryOrder: user.category_order || ['personal', 'projects', 'blogs', 'achievements', 'contact', 'social', 'custom']
     };
   } catch (error) {
     console.error('Error fetching public profile:', error);
-    return { success: false, user: null, links: [], appearanceSettings: null };
+    return { success: false, user: null, links: [], appearanceSettings: null, voiceAssistant: null };
   }
 }

@@ -77,7 +77,8 @@ async function ProfileContent() {
     linkedin_url: profileData.linkedin_url || '',
     twitter_url: profileData.twitter_username ? `https://x.com/${profileData.twitter_username}` : '',
     website_url: profileData.website_url || '',
-    tech_stacks: profileData.tech_stacks || []
+    tech_stacks: profileData.tech_stacks || [],
+    show_github_contributions: profileData.show_github_contributions !== undefined ? profileData.show_github_contributions : true
   } : undefined;
   
   // Create preview content

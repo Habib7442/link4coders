@@ -42,6 +42,9 @@ interface Link {
   category: string;
   is_active: boolean;
   click_count: number;
+  icon_type?: string;
+  live_project_url?: string;
+  link_image?: string;
   metadata?: {
     type?: string;
     stars?: number;
@@ -342,6 +345,18 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
                     className="bg-white/5 border border-white/10 rounded-lg p-4 hover:border-[#54E0FF]/30 transition-all"
                   >
                     <div className="flex items-start justify-between gap-4">
+                      {/* Link Image */}
+                      {link.link_image && (
+                        <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
+                          <Image
+                            src={link.link_image}
+                            alt={link.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="text-white font-medium truncate">{link.title}</h4>
