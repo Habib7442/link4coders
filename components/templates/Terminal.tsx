@@ -1,8 +1,9 @@
 import React from 'react';
-import VoiceWidget from '@/components/voice/VoiceWidget';
+import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
 
 interface TerminalTemplateProps {
   user: {
+    id: string;
     name: string;
     title: string;
     bio: string;
@@ -20,9 +21,15 @@ interface TerminalTemplateProps {
       twitter: string;
     };
   };
+  voiceAssistant?: {
+    assistant_id: string;
+    assistant_name?: string;
+    first_message?: string;
+  } | null;
+  vapiPublicKey?: string;
 }
 
-export default function TerminalTemplate({ user }: TerminalTemplateProps) {
+export default function TerminalTemplate({ user, voiceAssistant, vapiPublicKey }: TerminalTemplateProps) {
   return (
     <div className="min-h-screen bg-black text-green-400 font-mono">
       <div className="container mx-auto px-4 py-12">
@@ -45,13 +52,13 @@ export default function TerminalTemplate({ user }: TerminalTemplateProps) {
           
           <div className="mb-6">
             <p className="mb-2">{'>'} whoami</p>
-            <p className="ml-4">{user.name}</p>
-            <p className="ml-4 text-green-300">{user.title}</p>
+            <p className="ml-4 break-words">{user.name}</p>
+            <p className="ml-4 text-green-300 break-words">{user.title}</p>
           </div>
           
           <div className="mb-6">
             <p className="mb-2">{'>'} cat about.txt</p>
-            <p className="ml-4">{user.bio}</p>
+            <p className="ml-4 break-words">{user.bio}</p>
           </div>
           
           <div className="mb-6">
@@ -70,8 +77,8 @@ export default function TerminalTemplate({ user }: TerminalTemplateProps) {
             <div className="ml-4 space-y-4">
               {user.projects.map((project, index) => (
                 <div key={index} className="border-l-2 border-green-400 pl-4 py-2">
-                  <p className="font-bold">{project.name}</p>
-                  <p className="text-green-300">{project.description}</p>
+                  <p className="font-bold break-words">{project.name}</p>
+                  <p className="text-green-300 break-words">{project.description}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {project.tech.map((tech, techIndex) => (
                       <span key={techIndex} className="bg-green-400/10 px-2 py-1 rounded text-sm">
@@ -100,12 +107,19 @@ export default function TerminalTemplate({ user }: TerminalTemplateProps) {
           </div>
           
           {/* AI Voice Assistant */}
-          <div className="mt-8">
-            <p className="mb-2">{'>'} run voice_assistant</p>
-            <div className="ml-4">
-              <VoiceWidget />
+          {voiceAssistant && vapiPublicKey && (
+            <div className="mt-8">
+              <p className="mb-2">{'>'} run voice_assistant</p>
+              <div className="ml-4 flex justify-start">
+                <VapiVoiceButton
+                  userId={user.id}
+                  assistantId={voiceAssistant.assistant_id}
+                  publicKey={vapiPublicKey}
+                  firstMessage={voiceAssistant.first_message || undefined}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

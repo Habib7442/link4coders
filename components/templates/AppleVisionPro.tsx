@@ -159,18 +159,18 @@ export default function AppleVisionProTemplate({ user, links, voiceAssistant, va
                 )}
 
                 {/* Name & Title */}
-                <h1 className="text-5xl font-extralight text-white mb-2 tracking-wide">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extralight text-white mb-2 tracking-wide break-words px-4">
                   {user.full_name || 'Developer'}
                 </h1>
                 
                 {user.profile_title && (
-                  <p className="text-xl text-[#00D4FF] font-light mb-4 tracking-wide">
+                  <p className="text-lg sm:text-xl text-[#00D4FF] font-light mb-4 tracking-wide break-words px-4">
                     {user.profile_title}
                   </p>
                 )}
 
                 {user.bio && (
-                  <p className="text-[#A0AEC0] max-w-2xl mx-auto mb-6 font-light text-base leading-relaxed tracking-wide">
+                  <p className="text-sm sm:text-base text-[#A0AEC0] max-w-2xl mx-auto mb-6 font-light leading-relaxed tracking-wide break-words px-4">
                     {user.bio}
                   </p>
                 )}

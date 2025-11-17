@@ -59,11 +59,11 @@ export default function ArcticMinimalTemplate({ user, links, voiceAssistant, vap
             )}
 
             <div className="flex-1">
-              <h1 className="text-4xl md:text-5xl font-light text-gray-900 mb-2 tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-gray-900 mb-2 tracking-tight break-words">
                 {user.full_name || 'Developer'}
               </h1>
               {user.profile_title && (
-                <p className="text-xl text-gray-600 font-light">
+                <p className="text-lg sm:text-xl text-gray-600 font-light break-words">
                   {user.profile_title}
                 </p>
               )}
@@ -77,7 +77,7 @@ export default function ArcticMinimalTemplate({ user, links, voiceAssistant, vap
         {/* Bio Section */}
         {user.bio && (
           <section className="mb-20">
-            <p className="text-lg text-gray-700 leading-relaxed font-light max-w-3xl">
+            <p className="text-base sm:text-lg text-gray-700 leading-relaxed font-light max-w-3xl break-words">
               {user.bio}
             </p>
           </section>

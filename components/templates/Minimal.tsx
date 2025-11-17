@@ -1,8 +1,9 @@
 import React from 'react';
-import VoiceWidget from '@/components/voice/VoiceWidget';
+import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
 
 interface MinimalTemplateProps {
   user: {
+    id: string;
     name: string;
     title: string;
     bio: string;
@@ -20,9 +21,15 @@ interface MinimalTemplateProps {
       twitter: string;
     };
   };
+  voiceAssistant?: {
+    assistant_id: string;
+    assistant_name?: string;
+    first_message?: string;
+  } | null;
+  vapiPublicKey?: string;
 }
 
-export default function MinimalTemplate({ user }: MinimalTemplateProps) {
+export default function MinimalTemplate({ user, voiceAssistant, vapiPublicKey }: MinimalTemplateProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-12">
@@ -31,11 +38,11 @@ export default function MinimalTemplate({ user }: MinimalTemplateProps) {
           <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center text-gray-900 dark:text-white font-bold text-3xl mx-auto mb-6">
             {user.avatar}
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 break-words px-4">
             {user.name}
           </h1>
-          <p className="text-xl text-[#FF6B35] font-medium mb-4">{user.title}</p>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+          <p className="text-lg sm:text-xl text-[#FF6B35] font-medium mb-4 break-words px-4">{user.title}</p>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6 break-words px-4">
             {user.bio}
           </p>
           
@@ -76,8 +83,8 @@ export default function MinimalTemplate({ user }: MinimalTemplateProps) {
                 key={index} 
                 className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700"
               >
-                <h3 className="text-xl font-bold mb-2">{project.name}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
+                <h3 className="text-lg sm:text-xl font-bold mb-2 break-words">{project.name}</h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 break-words">{project.description}</p>
                 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {project.tech.map((tech, techIndex) => (
@@ -105,9 +112,18 @@ export default function MinimalTemplate({ user }: MinimalTemplateProps) {
         </div>
 
         {/* AI Voice Assistant */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-          <VoiceWidget />
-        </div>
+        {voiceAssistant && vapiPublicKey && (
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+            <div className="flex justify-center">
+              <VapiVoiceButton
+                userId={user.id}
+                assistantId={voiceAssistant.assistant_id}
+                publicKey={vapiPublicKey}
+                firstMessage={voiceAssistant.first_message || undefined}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

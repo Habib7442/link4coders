@@ -142,31 +142,31 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
             </div>
           )}
           
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2 break-words px-4">
             {user.full_name || 'Developer'}
           </h1>
           
           {user.profile_title && (
-            <p className="text-xl text-[#54E0FF] mb-4">{user.profile_title}</p>
+            <p className="text-lg sm:text-xl text-[#54E0FF] mb-4 break-words px-4">{user.profile_title}</p>
           )}
           
           {user.bio && (
-            <p className="text-gray-300 max-w-2xl mx-auto mb-6">
+            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto mb-6 break-words px-4">
               {user.bio}
             </p>
           )}
           
           {/* Social Links */}
-          <div className="flex justify-center gap-4 mb-6">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-6">
             {user.github_url && (
               <a
                 href={user.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
               >
-                <Image src="/icons/social/github.png" alt="GitHub" width={20} height={20} />
-                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors">GitHub</span>
+                <Image src="/icons/social/github.png" alt="GitHub" width={20} height={20} className="flex-shrink-0" />
+                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors hidden sm:inline">GitHub</span>
               </a>
             )}
             {user.linkedin_url && (
@@ -174,10 +174,10 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                 href={user.linkedin_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
               >
-                <Image src="/icons/social/linkedin.png" alt="LinkedIn" width={20} height={20} />
-                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors">LinkedIn</span>
+                <Image src="/icons/social/linkedin.png" alt="LinkedIn" width={20} height={20} className="flex-shrink-0" />
+                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors hidden sm:inline">LinkedIn</span>
               </a>
             )}
             {user.twitter_username && (
@@ -185,10 +185,10 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                 href={`https://x.com/${user.twitter_username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
               >
-                <Image src="/icons/social/x.png" alt="X" width={20} height={20} />
-                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors">X</span>
+                <Image src="/icons/social/x.png" alt="X" width={20} height={20} className="flex-shrink-0" />
+                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors hidden sm:inline">X</span>
               </a>
             )}
             {user.website_url && (
@@ -196,10 +196,10 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                 href={user.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 hover:border-[#54E0FF]/50 transition-all group"
               >
-                <Image src="/icons/social/website.png" alt="Website" width={20} height={20} />
-                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors">Website</span>
+                <Image src="/icons/social/website.png" alt="Website" width={20} height={20} className="flex-shrink-0" />
+                <span className="text-white text-sm group-hover:text-[#54E0FF] transition-colors hidden sm:inline">Website</span>
               </a>
             )}
           </div>
@@ -235,7 +235,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span className="text-sm text-gray-300 group-hover:text-[#54E0FF] transition-colors">
+                    <span className="text-sm text-gray-300 group-hover:text-[#54E0FF] transition-colors break-words">
                       {tech}
                     </span>
                   </div>
@@ -268,8 +268,8 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
             return (
               <div key={category} className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-3xl">{categoryEmoji}</span>
-                  <h2 className="text-2xl font-bold text-white capitalize">{category}</h2>
+                  <span className="text-2xl sm:text-3xl flex-shrink-0">{categoryEmoji}</span>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white capitalize break-words">{category}</h2>
                   <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent ml-4" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

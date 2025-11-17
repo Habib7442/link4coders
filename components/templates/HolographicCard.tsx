@@ -127,11 +127,11 @@ export default function HolographicCardTemplate({
 
                 {/* Name & Title */}
                 <div className="text-center mb-6">
-                  <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-blue-400 to-pink-400 mb-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-blue-400 to-pink-400 mb-2 break-words px-4">
                     {user.full_name || 'Developer'}
                   </h1>
                   {user.profile_title && (
-                    <p className="text-xl text-blue-300 font-medium">
+                    <p className="text-lg sm:text-xl text-blue-300 font-medium break-words px-4">
                       {user.profile_title}
                     </p>
                   )}
@@ -139,7 +139,7 @@ export default function HolographicCardTemplate({
 
                 {/* Bio */}
                 {user.bio && (
-                  <p className="text-gray-300 text-center mb-6 max-w-md mx-auto">
+                  <p className="text-sm sm:text-base text-gray-300 text-center mb-6 max-w-md mx-auto break-words px-4">
                     {user.bio}
                   </p>
                 )}

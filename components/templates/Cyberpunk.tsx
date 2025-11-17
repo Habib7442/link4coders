@@ -1,8 +1,9 @@
 import React from 'react';
-import VoiceWidget from '@/components/voice/VoiceWidget';
+import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
 
 interface CyberpunkTemplateProps {
   user: {
+    id: string;
     name: string;
     title: string;
     bio: string;
@@ -20,9 +21,15 @@ interface CyberpunkTemplateProps {
       twitter: string;
     };
   };
+  voiceAssistant?: {
+    assistant_id: string;
+    assistant_name?: string;
+    first_message?: string;
+  } | null;
+  vapiPublicKey?: string;
 }
 
-export default function CyberpunkTemplate({ user }: CyberpunkTemplateProps) {
+export default function CyberpunkTemplate({ user, voiceAssistant, vapiPublicKey }: CyberpunkTemplateProps) {
   return (
     <div className="min-h-screen bg-black text-cyan-400 font-mono relative overflow-hidden">
       {/* Cyberpunk Grid Background */}
@@ -42,14 +49,14 @@ export default function CyberpunkTemplate({ user }: CyberpunkTemplateProps) {
             <div className="w-32 h-32 bg-cyan-400/10 border-2 border-cyan-400 rounded-full flex items-center justify-center text-cyan-400 font-bold text-4xl mx-auto mb-6">
               {user.avatar}
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 relative">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 relative break-words px-4">
               <span className="relative z-10">{user.name}</span>
-              <span className="absolute top-0 left-0 text-cyan-400/30 z-0" style={{ transform: 'translate(-2px, -2px)' }}>
+              <span className="absolute top-0 left-0 text-cyan-400/30 z-0 break-words" style={{ transform: 'translate(-2px, -2px)' }}>
                 {user.name}
               </span>
             </h1>
-            <p className="text-2xl text-pink-500 font-bold mb-6">{user.title}</p>
-            <p className="text-cyan-300 max-w-2xl mx-auto mb-8 text-lg">
+            <p className="text-lg sm:text-xl md:text-2xl text-pink-500 font-bold mb-6 break-words px-4">{user.title}</p>
+            <p className="text-sm sm:text-base md:text-lg text-cyan-300 max-w-2xl mx-auto mb-8 break-words px-4">
               {user.bio}
             </p>
           </div>
@@ -94,8 +101,8 @@ export default function CyberpunkTemplate({ user }: CyberpunkTemplateProps) {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-pink-500/5 opacity-0 hover:opacity-100 transition-opacity"></div>
                 <div className="relative z-10">
-                  <h3 className="text-2xl font-bold mb-3 text-cyan-400">{project.name}</h3>
-                  <p className="text-cyan-300 mb-4">{project.description}</p>
+                  <h3 className="text-xl sm:text-2xl font-bold mb-3 text-cyan-400 break-words">{project.name}</h3>
+                  <p className="text-sm sm:text-base text-cyan-300 mb-4 break-words">{project.description}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.tech.map((tech, techIndex) => (
@@ -124,13 +131,22 @@ export default function CyberpunkTemplate({ user }: CyberpunkTemplateProps) {
         </div>
 
         {/* AI Voice Assistant with Cyberpunk Styling */}
-        <div className="bg-cyan-400/5 border-2 border-cyan-400 rounded-2xl p-8 relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-pink-500/5 opacity-20"></div>
-          <div className="relative z-10">
-            <h2 className="text-3xl font-bold mb-6 text-center text-pink-500">AI VOICE ASSISTANT</h2>
-            <VoiceWidget />
+        {voiceAssistant && vapiPublicKey && (
+          <div className="bg-cyan-400/5 border-2 border-cyan-400 rounded-2xl p-8 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-pink-500/5 opacity-20"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl font-bold mb-6 text-center text-pink-500">AI VOICE ASSISTANT</h2>
+              <div className="flex justify-center">
+                <VapiVoiceButton
+                  userId={user.id}
+                  assistantId={voiceAssistant.assistant_id}
+                  publicKey={vapiPublicKey}
+                  firstMessage={voiceAssistant.first_message || undefined}
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
