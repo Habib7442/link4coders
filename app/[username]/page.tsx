@@ -291,6 +291,15 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 bg-[#1e1e20] mt-20">
+        <div className="container mx-auto px-6 py-8 max-w-5xl">
+          <p className="text-sm text-gray-400 text-center">
+            © {new Date().getFullYear()} {user.full_name || 'Developer'}. Built with Link4Devs.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -2,6 +2,32 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
+export async function getFeaturedProfiles(limit: number = 6) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    
+    // Get public profiles with complete data
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, full_name, profile_slug, profile_title, bio, avatar_url, tech_stacks, github_username, theme_id')
+      .eq('is_public', true)
+      .eq('profile_public', true)
+      .not('profile_slug', 'is', null)
+      .not('avatar_url', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    
+    if (error || !users) {
+      return { success: false, profiles: [] };
+    }
+    
+    return { success: true, profiles: users };
+  } catch (error) {
+    console.error('Error fetching featured profiles:', error);
+    return { success: false, profiles: [] };
+  }
+}
+
 export async function getPublicProfile(username: string) {
   try {
     const supabase = await createServerSupabaseClient();

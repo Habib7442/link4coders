@@ -1,6 +1,10 @@
 import React from "react";
 import { Hero } from "@/components/Hero";
 import { Header } from "@/components/ui/header";
+import { FeaturedProfiles } from "@/components/landing/featured-profiles";
+import { FeaturesSection } from "@/components/landing/features-section";
+import { PricingSection } from "@/components/landing/pricing-section";
+import { FooterSection } from "@/components/landing/footer-section";
 
 export default function MarketingPage() {
   return (
@@ -8,8 +12,11 @@ export default function MarketingPage() {
       <Header />
       <main>
         <Hero />
-        {/* Additional content can be added here if needed */}
+        <FeaturedProfiles />
+        <FeaturesSection />
+        <PricingSection />
       </main>
+      <FooterSection />
     </div>
   );
 }

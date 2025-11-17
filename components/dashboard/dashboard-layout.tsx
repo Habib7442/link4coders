@@ -23,6 +23,7 @@ import {
   Loader2,
   Sparkles,
   Menu,
+  MessageSquare,
 } from "lucide-react";
 
 interface NavItem {
@@ -62,6 +63,12 @@ const navigationItems: NavItem[] = [
     label: "Analytics",
     icon: BarChart3,
     href: "/analytics",
+  },
+  {
+    id: "testimonials",
+    label: "Testimonials",
+    icon: MessageSquare,
+    href: "/testimonials",
   },
   {
     id: "settings",

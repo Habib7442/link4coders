@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from './button';
 import { AuthModal } from './auth-modal';
@@ -11,7 +12,7 @@ import { LogOut, User, Menu, X } from 'lucide-react';
 export function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, signOut, loading } = useAuthStore();
+  const { user, logout, loading } = useAuthStore();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -19,7 +20,7 @@ export function Header() {
   const shouldShowHeader = pathname === '/' || pathname === '/home';
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
   };
 
   // Close mobile menu when clicking outside
@@ -63,12 +64,9 @@ export function Header() {
               </div>
 
               <div className="hidden sm:flex items-center gap-6">
-                <a href="#" className="text-[#7a7a83] text-[15px] font-light tracking-[-0.45px] font-sharp-grotesk hover:text-white transition-colors" onClick={(e) => {
-                  e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}>
-                  Home
-                </a>
+                <Link href="/testimonials" className="text-[#7a7a83] text-[15px] font-light tracking-[-0.45px] font-sharp-grotesk hover:text-white transition-colors">
+                  Testimonials
+                </Link>
                 <a href="#features" className="text-[#7a7a83] text-[15px] font-light tracking-[-0.45px] font-sharp-grotesk hover:text-white transition-colors" onClick={(e) => {
                   e.preventDefault();
                   document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -151,17 +149,13 @@ export function Header() {
                 </button>
               </div>
               <div className="flex flex-col gap-3">
-                <a
-                  href="#"
+                <Link
+                  href="/testimonials"
                   className="text-[#7a7a83] text-[14px] font-light tracking-[-0.42px] font-sharp-grotesk hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Home
-                </a>
+                  Testimonials
+                </Link>
                 <a
                   href="#features"
                   className="text-[#7a7a83] text-[14px] font-light tracking-[-0.42px] font-sharp-grotesk hover:text-white transition-colors py-2 px-3 rounded-lg hover:bg-white/5"
