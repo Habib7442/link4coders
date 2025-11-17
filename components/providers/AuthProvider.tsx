@@ -9,61 +9,114 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { fetchUserProfile, setUser, setProfile, setInitialized } = useAuthStore()
+  const { setUser, setProfile, setInitialized, setLoading } = useAuthStore()
 
   useEffect(() => {
     const supabase = createClient()
+    let mounted = true
     
     console.log('🚀 AuthProvider: Initializing auth...')
     
-    // Fetch initial user profile
-    fetchUserProfile()
-    
-    // Listen to auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔄 Auth state change event:', event)
-        console.log('📦 Session:', session ? 'exists' : 'null')
+    // Initial session check
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
         
-        if (session) {
-          // Use getUser() to authenticate instead of trusting session.user directly
-          const { data: { user }, error } = await supabase.auth.getUser()
+        if (!mounted) return
+        
+        if (error) {
+          console.error('❌ Session error:', error)
+          setUser(null)
+          setProfile(null)
+          setInitialized(true)
+          setLoading(false)
+          return
+        }
+        
+        if (session?.user) {
+          console.log('✅ Initial session found:', session.user.email)
+          setUser(session.user)
           
-          if (user && !error) {
-            console.log('✅ User authenticated:', user.email)
-            setUser(user)
-            
-            // Fetch user profile from database
-            const { data: profile } = await supabase
-              .from('users')
-              .select('*')
-              .eq('id', user.id)
-              .single()
-            
-            if (profile) {
-              console.log('✅ Profile fetched:', profile.email)
-              setProfile(profile)
-            }
-          } else {
-            console.log('🔓 User authentication failed')
-            setUser(null)
-            setProfile(null)
+          // Fetch profile
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (mounted && profile) {
+            console.log('✅ Profile loaded:', profile.email)
+            setProfile(profile)
           }
         } else {
-          console.log('🔓 User signed out')
+          console.log('🔓 No session found')
           setUser(null)
           setProfile(null)
         }
         
-        setInitialized(true)
+        if (mounted) {
+          setInitialized(true)
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('❌ Auth initialization error:', error)
+        if (mounted) {
+          setUser(null)
+          setProfile(null)
+          setInitialized(true)
+          setLoading(false)
+        }
+      }
+    }
+    
+    // Run initial auth check
+    initializeAuth()
+    
+    // Listen to auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return
+        
+        console.log('🔄 Auth state change event:', event)
+        console.log('📦 Session:', session ? 'exists' : 'null')
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('✅ User signed in:', session.user.email)
+          setUser(session.user)
+          setLoading(true)
+          
+          // Fetch user profile from database
+          const { data: profile } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single()
+          
+          if (mounted && profile) {
+            console.log('✅ Profile fetched:', profile.email)
+            setProfile(profile)
+          }
+          
+          if (mounted) {
+            setLoading(false)
+            setInitialized(true)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          console.log('🔓 User signed out')
+          setUser(null)
+          setProfile(null)
+          setInitialized(true)
+          setLoading(false)
+        }
       }
     )
     
     return () => {
+      mounted = false
       console.log('🛑 AuthProvider: Cleaning up auth subscription')
       subscription.unsubscribe()
     }
-  }, [fetchUserProfile, setUser, setProfile, setInitialized])
+  }, [setUser, setProfile, setInitialized, setLoading])
 
   return <>{children}</>
 }

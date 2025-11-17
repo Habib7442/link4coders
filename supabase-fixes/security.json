@@ -1,0 +1,89 @@
+[
+  {
+    "name": "function_search_path_mutable",
+    "title": "Function Search Path Mutable",
+    "level": "WARN",
+    "facing": "EXTERNAL",
+    "categories": [
+      "SECURITY"
+    ],
+    "description": "Detects functions where the search_path parameter is not set.",
+    "detail": "Function \\`public.increment_conversations_used\\` has a role mutable search_path",
+    "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+    "metadata": {
+      "name": "increment_conversations_used",
+      "type": "function",
+      "schema": "public"
+    },
+    "cache_key": "function_search_path_mutable_public_increment_conversations_used_89e0e322499144d5df9d1e6f0451b315"
+  },
+  {
+    "name": "function_search_path_mutable",
+    "title": "Function Search Path Mutable",
+    "level": "WARN",
+    "facing": "EXTERNAL",
+    "categories": [
+      "SECURITY"
+    ],
+    "description": "Detects functions where the search_path parameter is not set.",
+    "detail": "Function \\`public.update_updated_at_column\\` has a role mutable search_path",
+    "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable",
+    "metadata": {
+      "name": "update_updated_at_column",
+      "type": "function",
+      "schema": "public"
+    },
+    "cache_key": "function_search_path_mutable_public_update_updated_at_column_2116c9671c9bf8d2124074310ed3d55d"
+  },
+  {
+    "name": "auth_otp_long_expiry",
+    "title": "Auth OTP long expiry",
+    "level": "WARN",
+    "facing": "EXTERNAL",
+    "categories": [
+      "SECURITY"
+    ],
+    "description": "OTP expiry exceeds recommended threshold",
+    "detail": "We have detected that you have enabled the email provider with the OTP expiry set to more than an hour. It is recommended to set this value to less than an hour.",
+    "cache_key": "auth_otp_long_expiry",
+    "remediation": "https://supabase.com/docs/guides/platform/going-into-prod#security",
+    "metadata": {
+      "type": "auth",
+      "entity": "Auth"
+    }
+  },
+  {
+    "name": "auth_leaked_password_protection",
+    "title": "Leaked Password Protection Disabled",
+    "level": "WARN",
+    "facing": "EXTERNAL",
+    "categories": [
+      "SECURITY"
+    ],
+    "description": "Leaked password protection is currently disabled.",
+    "detail": "Supabase Auth prevents the use of compromised passwords by checking against HaveIBeenPwned.org. Enable this feature to enhance security.",
+    "cache_key": "auth_leaked_password_protection",
+    "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection",
+    "metadata": {
+      "type": "auth",
+      "entity": "Auth"
+    }
+  },
+  {
+    "name": "vulnerable_postgres_version",
+    "title": "Current Postgres version has security patches available",
+    "level": "WARN",
+    "facing": "EXTERNAL",
+    "categories": [
+      "SECURITY"
+    ],
+    "description": "Upgrade your postgres database to apply important security patches",
+    "detail": "We have detected that the current version of postgres, supabase-postgres-17.4.1.074, has outstanding security patches available. Upgrade your database to receive the latest security patches.",
+    "cache_key": "vulnerable_postgres_version",
+    "remediation": "https://supabase.com/docs/guides/platform/upgrading",
+    "metadata": {
+      "type": "compliance",
+      "entity": "Config"
+    }
+  }
+]
