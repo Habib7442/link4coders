@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/useAuthStore'
 import { Button } from './button'
-import { X, Github, Mail, Eye, EyeOff } from 'lucide-react'
+import { X, Mail, Eye, EyeOff } from 'lucide-react'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -21,7 +21,6 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
   const router = useRouter()
   
   const { 
-    signInWithGitHub, 
     signInWithGoogle, 
     signInWithEmail, 
     signUpWithEmail,
@@ -58,11 +57,6 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
       // For sign-up, we don't close the modal immediately as user needs to check email
       // The success message is displayed in the modal
     }
-  }
-
-  const handleGitHubAuth = async () => {
-    // For OAuth, we don't close the modal immediately as it redirects
-    await signInWithGitHub()
   }
 
   const handleGoogleAuth = async () => {
@@ -105,16 +99,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = 'signin' }: AuthModal
         </div>
 
         {/* OAuth Buttons */}
-        <div className="space-y-4 mb-6">
-          <Button
-            onClick={handleGitHubAuth}
-            disabled={loading}
-            className="w-full bg-[#28282b] border border-[#33373b] text-white hover:bg-[#33373b] hover:border-[#54E0FF]/30 font-medium text-[16px] tracking-[-0.48px] font-sharp-grotesk rounded-[12px] py-4 flex items-center justify-center gap-3"
-          >
-            <Github className="w-5 h-5" />
-            Continue with GitHub
-          </Button>
-          
+        <div className="mb-6">
           <Button
             onClick={handleGoogleAuth}
             disabled={loading}

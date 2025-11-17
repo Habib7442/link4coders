@@ -32,7 +32,6 @@ interface AuthState {
   fetchUserProfile: () => Promise<void>
   signInWithEmail: (email: string, password: string) => Promise<boolean>
   signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<boolean>
-  signInWithGitHub: () => Promise<boolean>
   signInWithGoogle: () => Promise<boolean>
 }
 
@@ -138,35 +137,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return false
     } catch (error) {
       console.error('❌ Sign up error:', error)
-      set({ error: (error as AuthError).message, loading: false })
-      return false
-    }
-  },
-  
-  signInWithGitHub: async () => {
-    try {
-      set({ loading: true, error: null })
-      const supabase = createClient()
-      
-      console.log('🐙 Signing in with GitHub...')
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
-          scopes: 'read:user user:email'
-        }
-      })
-      
-      if (error) {
-        console.error('❌ GitHub sign in error:', error.message)
-        set({ error: error.message, loading: false })
-        return false
-      }
-      
-      return true
-    } catch (error) {
-      console.error('❌ GitHub sign in error:', error)
       set({ error: (error as AuthError).message, loading: false })
       return false
     }
