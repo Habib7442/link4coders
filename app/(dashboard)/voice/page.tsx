@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+'use client';
+
+import React, { useState } from 'react';
 
 export default function VoiceAssistantPage() {
   const [isListening, setIsListening] = useState(false);
