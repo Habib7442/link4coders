@@ -4,10 +4,10 @@ import { getPublicProfile } from '@/server/actions/public-profile.actions';
 import { ClickableLink } from '@/components/public-profile/clickable-link';
 import { GitHubContributions } from '@/components/public-profile/github-contributions';
 import AppleVisionProTemplate from '@/components/templates/AppleVisionPro';
+import HolographicCardTemplate from '@/components/templates/HolographicCard';
+import ArcticMinimalTemplate from '@/components/templates/ArcticMinimal';
+import TokyoNeonTemplate from '@/components/templates/TokyoNeon';
 import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -30,6 +30,26 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
   
   const { user, links, voiceAssistant } = result;
   
+  // Check if profile is private
+  const isProfilePublic = (user as unknown as Record<string, unknown>).profile_public;
+  if (isProfilePublic === false) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#18181a] to-[#1e1e20] flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+            <svg className="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-3">This Account is Private</h1>
+          <p className="text-gray-400 text-sm md:text-base">
+            This profile has been set to private by the user.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  
   // Get VAPI public key from env
   const vapiPublicKey = process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || '';
   
@@ -47,6 +67,45 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
   
   // Get user's template (default to developer-dark)
   const templateId = user.theme_id || 'developer-dark';
+  
+  // Render Arctic Minimal template
+  if (templateId === 'arctic-minimal') {
+    return (
+      <ArcticMinimalTemplate 
+        user={user} 
+        links={links as Record<string, Array<{ id: string; url: string; title: string; description?: string; icon_type?: string; link_image?: string }>>}
+        voiceAssistant={voiceAssistant}
+        vapiPublicKey={vapiPublicKey}
+        githubUsername={githubUsername}
+      />
+    );
+  }
+  
+  // Render Tokyo Neon template
+  if (templateId === 'tokyo-neon') {
+    return (
+      <TokyoNeonTemplate 
+        user={user} 
+        links={links as Record<string, Array<{ id: string; url: string; title: string; description?: string; icon_type?: string; link_image?: string }>>}
+        voiceAssistant={voiceAssistant}
+        vapiPublicKey={vapiPublicKey}
+        githubUsername={githubUsername}
+      />
+    );
+  }
+  
+  // Render Holographic Card template
+  if (templateId === 'holographic-card') {
+    return (
+      <HolographicCardTemplate 
+        user={user} 
+        links={links as Record<string, Array<{ id: string; url: string; title: string; description?: string; icon_type?: string; link_image?: string }>>}
+        voiceAssistant={voiceAssistant}
+        vapiPublicKey={vapiPublicKey}
+        githubUsername={githubUsername}
+      />
+    );
+  }
   
   // Render Apple Vision Pro template
   if (templateId === 'apple-vision-pro') {

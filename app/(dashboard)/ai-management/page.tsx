@@ -359,19 +359,10 @@ export default function AIManagementPage() {
 
                 <div>
                   <Label className="text-white">AI Model</Label>
-                  <Select
-                    value={assistantConfig.model}
-                    onValueChange={(value) => setAssistantConfig({ ...assistantConfig, model: value })}
-                  >
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="gpt-4o-mini">GPT-4O Mini (Fast & Cheap)</SelectItem>
-                      <SelectItem value="gpt-4o">GPT-4O (Best Quality)</SelectItem>
-                      <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="bg-white/5 border border-white/10 rounded-md px-3 py-2">
+                    <p className="text-white">GPT-4O Mini</p>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Fixed model for optimal performance</p>
                 </div>
 
                 <div>
@@ -458,11 +449,11 @@ export default function AIManagementPage() {
                       <div>
                         <p className="text-white font-medium">Conversation {conversations.length - idx}</p>
                         <p className="text-sm text-gray-400">
-                          {conv.duration_seconds} seconds • {new Date(conv.created_at as string).toLocaleDateString()}
+                          {String(conv.duration_seconds)} seconds • {new Date(conv.created_at as string).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    {conv.cost && (
+                    {conv.cost !== undefined && conv.cost !== null && (
                       <p className="text-sm text-gray-400">${Number(conv.cost).toFixed(4)}</p>
                     )}
                   </div>

@@ -13,6 +13,9 @@ interface ProfileData {
   website_url?: string;
   profile_title?: string;
   tech_stacks?: string[];
+  show_github_contributions?: boolean;
+  profile_public?: boolean;
+  [key: string]: unknown;
 }
 
 // Get user profile

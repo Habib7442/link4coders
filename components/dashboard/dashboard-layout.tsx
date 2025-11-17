@@ -6,6 +6,13 @@ import Image from "next/image";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Button } from "@/components/ui/button";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
   User,
   Link,
   Palette,
@@ -15,6 +22,7 @@ import {
   LogOut,
   Loader2,
   Sparkles,
+  Menu,
 } from "lucide-react";
 
 interface NavItem {
@@ -78,6 +86,7 @@ export function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isNavigating, setIsNavigating] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -96,6 +105,7 @@ export function DashboardLayout({
 
   const handleNavigation = (href: string) => {
     setIsNavigating(true);
+    setMobileMenuOpen(false);
     router.push(href);
   };
 
@@ -248,6 +258,130 @@ export function DashboardLayout({
         {/* Mobile Header */}
         <header className="lg:hidden bg-[#1e1e20] border-b border-[#33373b] flex-shrink-0">
           <div className="flex items-center justify-between w-full px-4 py-3">
+            {/* Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-transparent border-[#33373b] text-white hover:bg-[#28282b] hover:text-white"
+                >
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-72 bg-[#1e1e20] border-[#33373b] p-0">
+                <SheetHeader className="p-4 border-b border-[#33373b]">
+                  <div className="flex items-center gap-2">
+                    <Image 
+                      src="/logo.png" 
+                      alt="Link4Devs Logo" 
+                      width={24}
+                      height={24}
+                      className="flex-shrink-0"
+                    />
+                    <SheetTitle className="text-white text-[16px] font-medium tracking-[-0.4px] font-sharp-grotesk">
+                      Dashboard
+                    </SheetTitle>
+                  </div>
+                </SheetHeader>
+
+                {/* User Profile Section */}
+                <div className="p-3 border-b border-[#33373b]">
+                  <div className="flex items-center gap-2 mb-2">
+                    {user.user_metadata?.avatar_url ? (
+                      <img
+                        src={user.user_metadata.avatar_url}
+                        alt={user.user_metadata.full_name || user.email || 'User avatar'}
+                        className="w-9 h-9 rounded-full flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-[#18181a]" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-[14px] font-medium leading-[18px] tracking-[-0.35px] font-sharp-grotesk text-white truncate">
+                        {user.user_metadata?.full_name || "Developer"}
+                      </h3>
+                      <p className="text-[12px] font-light leading-[16px] tracking-[-0.3px] text-[#7a7a83] font-sharp-grotesk truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mobile Navigation */}
+                <nav className="flex-1 px-3 py-3 overflow-y-auto custom-scrollbar">
+                  <div className="space-y-1.5">
+                    {navigationItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = getActiveNavItem() === item.id;
+
+                      return (
+                        <Button
+                          key={item.id}
+                          onClick={() => handleNavigation(item.href)}
+                          disabled={isNavigating}
+                          className={`w-full justify-start text-left p-2 h-auto rounded-[8px] transition-all duration-200 ${
+                            isActive
+                              ? "bg-[#54E0FF]/10 border border-[#54E0FF]/30 text-[#54E0FF]"
+                              : "bg-transparent border border-transparent text-[#7a7a83] hover:text-white hover:bg-[#28282b] hover:border-[#33373b]"
+                          } ${isNavigating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <div className="flex items-start gap-2">
+                            {isNavigating && isActive ? (
+                              <Loader2 className="w-4 h-4 mt-0.5 flex-shrink-0 animate-spin" />
+                            ) : (
+                              <Icon
+                                className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
+                                  isActive ? "text-[#54E0FF]" : "text-current"
+                                }`}
+                              />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div
+                                className={`text-[13px] font-medium leading-[16px] tracking-[-0.32px] font-sharp-grotesk flex items-center gap-1.5 ${
+                                  isActive ? "text-[#54E0FF]" : "text-current"
+                                }`}
+                              >
+                                {item.label}
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </nav>
+
+                {/* Mobile Footer */}
+                <div className="p-3 border-t border-[#33373b]">
+                  <div className="space-y-1.5">
+                    <Button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        router.push("/");
+                      }}
+                      className="w-full justify-start bg-transparent border border-[#33373b] text-[#7a7a83] hover:text-white hover:border-[#54E0FF]/30 font-medium text-[12px] tracking-[-0.3px] font-sharp-grotesk rounded-[6px] px-2 py-1.5 h-auto"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                      <span className="truncate">Back to Home</span>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleSignOut();
+                      }}
+                      className="w-full justify-start bg-transparent border border-[#33373b] text-[#7a7a83] hover:text-red-400 hover:border-red-400/30 font-medium text-[12px] tracking-[-0.3px] font-sharp-grotesk rounded-[6px] px-2 py-1.5 h-auto"
+                    >
+                      <LogOut className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+                      <span className="truncate">Sign Out</span>
+                    </Button>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
             <div className="flex items-center gap-2">
               <Image 
                 src="/logo.png" 

@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { VapiVoiceButton } from '@/components/voice/vapi-voice-button';
 import { GitHubContributions } from '@/components/public-profile/github-contributions';
+import { ClickableLink } from '@/components/public-profile/clickable-link';
 
 interface AppleVisionProTemplateProps {
   user: {
@@ -294,59 +295,23 @@ export default function AppleVisionProTemplate({ user, links, voiceAssistant, va
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {categoryLinks.map((link, linkIdx) => (
-                    <a
+                  {categoryLinks.map((link) => (
+                    <div
                       key={link.id}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="glass-panel rounded-2xl border border-white/20 hover:border-[#00D4FF]/50 transition-all duration-500 group floating-card overflow-hidden flex flex-col"
+                      className="floating-card"
                       style={{
-                        animationDelay: `${linkIdx * 0.15}s`,
-                        ...getParallaxStyle(15 + linkIdx * 3),
+                        animationDelay: `${categoryLinks.indexOf(link) * 0.15}s`,
                       }}
                     >
-                      {/* Link Image Banner */}
-                      {link.link_image && (
-                        <div className="relative w-full h-48 flex-shrink-0">
-                          <Image
-                            src={link.link_image}
-                            alt={link.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-[#000015] via-transparent to-transparent" />
-                        </div>
-                      )}
-
-                      <div className="p-6 flex-1 flex items-start gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-xl glass-panel border border-white/20 flex items-center justify-center text-[#00D4FF] group-hover:scale-110 transition-transform">
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                          </svg>
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-white font-light text-lg mb-1 tracking-wide group-hover:text-[#00D4FF] transition-colors">
-                            {link.title}
-                          </h3>
-                          {link.description && (
-                            <p className="text-[#A0AEC0] text-sm font-light tracking-wide line-clamp-2">
-                              {link.description}
-                            </p>
-                          )}
-                        </div>
-
-                        <svg className="w-5 h-5 text-white/40 group-hover:text-[#00D4FF] group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-
-                      {/* Ambient glow on hover */}
-                      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" style={{
-                        background: 'radial-gradient(circle at center, rgba(0, 212, 255, 0.15), transparent 70%)',
-                      }} />
-                    </a>
+                      <ClickableLink
+                        linkId={link.id}
+                        url={link.url}
+                        title={link.title}
+                        description={link.description}
+                        iconType={link.icon_type}
+                        linkImage={link.link_image}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -354,6 +319,15 @@ export default function AppleVisionProTemplate({ user, links, voiceAssistant, va
           })}
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 glass-panel mt-20">
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <p className="text-sm text-[#A0AEC0] text-center font-light">
+            © {new Date().getFullYear()} {user.full_name || 'Developer'}. Built with Link4Devs.
+          </p>
+        </div>
+      </footer>
 
       <style jsx>{`
         .glass-panel {
