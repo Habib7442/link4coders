@@ -37,10 +37,10 @@ const navigationItems: NavItem[] = [
     href: "/links",
   },
   {
-    id: "themes",
-    label: "Themes",
+    id: "templates",
+    label: "Templates",
     icon: Palette,
-    href: "/themes",
+    href: "/templates",
   },
   {
     id: "analytics",

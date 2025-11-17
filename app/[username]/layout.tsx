@@ -7,7 +7,6 @@ export default function PublicProfileLayout({
 }) {
   return (
     <>
-      <Header />
       <main>{children}</main>
     </>
   );

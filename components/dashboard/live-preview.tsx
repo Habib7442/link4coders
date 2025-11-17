@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -33,10 +34,10 @@ export function LivePreview({ profileData }: LivePreviewProps) {
   } = profileData || {};
 
   const socialLinks = [
-    { name: 'GitHub', url: github_url, icon: 'GH' },
-    { name: 'LinkedIn', url: linkedin_url, icon: 'LI' },
-    { name: 'X', url: twitter_url, icon: 'X' },
-    { name: 'Website', url: website_url, icon: 'W' }
+    { name: 'GitHub', url: github_url, icon: '/icons/social/github.png' },
+    { name: 'LinkedIn', url: linkedin_url, icon: '/icons/social/linkedin.png' },
+    { name: 'X', url: twitter_url, icon: '/icons/social/x.png' },
+    { name: 'Website', url: website_url, icon: '/icons/social/website.png' }
   ].filter(link => link.url);
 
   return (
@@ -67,14 +68,22 @@ export function LivePreview({ profileData }: LivePreviewProps) {
             {socialLinks.length > 0 && (
               <div className="flex justify-center gap-3 mb-6">
                 {socialLinks.map((link, index) => (
-                  <Button
+                  <a
                     key={index}
-                    variant="outline"
-                    size="sm"
-                    className="bg-white/10 border border-white/20 text-white hover:bg-white/20"
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-white/10 border border-white/20 hover:bg-white/20 transition-colors flex items-center justify-center"
+                    title={link.name}
                   >
-                    {link.icon}
-                  </Button>
+                    <Image
+                      src={link.icon}
+                      alt={link.name}
+                      width={24}
+                      height={24}
+                      className="w-6 h-6 object-contain"
+                    />
+                  </a>
                 ))}
               </div>
             )}
