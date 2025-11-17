@@ -15,8 +15,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const supabase = createClient()
     let mounted = true
     
-    console.log('🚀 AuthProvider: Initializing auth...')
-    
     // Initial session check
     const initializeAuth = async () => {
       try {
@@ -25,7 +23,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (!mounted) return
         
         if (error) {
-          console.error('❌ Session error:', error)
           setUser(null)
           setProfile(null)
           setInitialized(true)
@@ -34,7 +31,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
         
         if (session?.user) {
-          console.log('✅ Session found:', session.user.email)
           setUser(session.user)
           
           // Fetch profile
@@ -45,11 +41,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             .single()
           
           if (mounted && profile) {
-            console.log('✅ Profile loaded:', profile.email)
             setProfile(profile)
           }
         } else {
-          console.log('🔓 No session found')
           setUser(null)
           setProfile(null)
         }
@@ -59,7 +53,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setLoading(false)
         }
       } catch (error) {
-        console.error('❌ Auth initialization error:', error)
         if (mounted) {
           setUser(null)
           setProfile(null)
@@ -76,8 +69,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return
-        
-        console.log('🔄 Auth event:', event)
         
         if (event === 'SIGNED_IN' && session?.user) {
           setUser(session.user)
@@ -98,7 +89,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoading(false)
           }
         } else if (event === 'SIGNED_OUT') {
-          console.log('🔓 User signed out')
           setUser(null)
           setProfile(null)
           setInitialized(true)

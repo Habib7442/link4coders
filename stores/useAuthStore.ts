@@ -42,15 +42,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initialized: false,
   error: null,
   
-  setUser: (user) => {
-    console.log('🔐 Setting user:', user?.email || 'null')
-    set({ user })
-  },
+  setUser: (user) => set({ user }),
   
-  setProfile: (profile) => {
-    console.log('👤 Profile fetched:', profile?.email || 'null')
-    set({ profile })
-  },
+  setProfile: (profile) => set({ profile }),
   
   setLoading: (loading) => set({ loading }),
   
@@ -65,21 +59,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true, error: null })
       const supabase = createClient()
       
-      console.log('📧 Signing in with email:', email)
-      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       })
       
       if (error) {
-        console.error('❌ Sign in error:', error.message)
         set({ error: error.message, loading: false })
         return false
       }
       
       if (data?.user) {
-        console.log('✅ Sign in successful:', data.user.email)
         set({ user: data.user, loading: false })
         
         // Fetch profile
@@ -89,7 +79,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       return false
     } catch (error) {
-      console.error('❌ Sign in error:', error)
       set({ error: (error as AuthError).message, loading: false })
       return false
     }
@@ -99,8 +88,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       set({ loading: true, error: null })
       const supabase = createClient()
-      
-      console.log('📝 Signing up with email:', email)
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -113,14 +100,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
       
       if (error) {
-        console.error('❌ Sign up error:', error.message)
         set({ error: error.message, loading: false })
         return false
       }
       
       if (data?.user) {
-        console.log('✅ Sign up successful:', data.user.email)
-        
         // Check if email confirmation is required
         if (!data.user.identities?.length) {
           set({ 
@@ -136,7 +120,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       return false
     } catch (error) {
-      console.error('❌ Sign up error:', error)
       set({ error: (error as AuthError).message, loading: false })
       return false
     }
@@ -147,8 +130,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true, error: null })
       const supabase = createClient()
       
-      console.log('🔍 Signing in with Google...')
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -158,14 +139,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
       
       if (error) {
-        console.error('❌ Google sign in error:', error.message)
         set({ error: error.message, loading: false })
         return false
       }
       
       return true
     } catch (error) {
-      console.error('❌ Google sign in error:', error)
       set({ error: (error as AuthError).message, loading: false })
       return false
     }
@@ -176,15 +155,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const supabase = createClient()
       const { error } = await supabase.auth.signOut()
       
-      if (error) {
-        console.error('❌ Logout error:', error)
-        throw error
-      }
+      if (error) throw error
       
-      console.log('🔓 User logged out successfully')
       set({ user: null, profile: null })
     } catch (error) {
-      console.error('❌ Error in logout:', error)
       throw error
     }
   },
@@ -193,19 +167,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const supabase = createClient()
       
-      console.log('🔍 Fetching user session...')
-      
       // First check if session exists to avoid AuthSessionMissingError
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
       if (sessionError) {
-        console.error('❌ Error getting session:', sessionError)
         set({ user: null, profile: null, loading: false, initialized: true })
         return
       }
       
       if (!session) {
-        console.log('🔓 No session found')
         set({ user: null, profile: null, loading: false, initialized: true })
         return
       }
@@ -214,16 +184,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError || !user) {
-        console.log('🔓 No authenticated user found')
         set({ user: null, profile: null, loading: false, initialized: true })
         return
       }
       
-      console.log('✅ User authenticated:', user.email)
       set({ user, loading: false, initialized: true })
       
       // Fetch user profile from public.users table
-      console.log('🔍 Fetching user profile from database...')
       const { data: profile, error: profileError } = await supabase
         .from('users')
         .select('*')
@@ -231,14 +198,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .single()
       
       if (profileError) {
-        console.error('❌ Error fetching user profile:', profileError)
         set({ profile: null })
       } else {
-        console.log('✅ Profile loaded:', profile.email)
         set({ profile: profile as Profile })
       }
     } catch (error) {
-      console.error('❌ Error in fetchUserProfile:', error)
       set({ user: null, profile: null, loading: false, initialized: true })
     }
   },

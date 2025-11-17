@@ -302,15 +302,6 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
           <Plus className="w-4 h-4 mr-2" />
           Add Link
         </Button>
-        <Button
-          onClick={handleGitHubImport}
-          disabled={!profile?.github_username || loadingRepos}
-          variant="outline"
-          className="border-[#54E0FF]/20 text-[#54E0FF] hover:bg-[#54E0FF]/10"
-        >
-          <Github className="w-4 h-4 mr-2" />
-          {loadingRepos ? 'Loading...' : 'Import from GitHub'}
-        </Button>
       </div>
 
       {/* Links by Category */}

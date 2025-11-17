@@ -75,13 +75,13 @@ export function Hero() {
             <div className="mb-4">
               <h1 className="text-[36px] leading-[42px] font-normal tracking-[-1.8px] font-sharp-grotesk text-white">
                 One link{" "}
-                <span className="inline-flex items-center justify-center rotate-12">
+                <span className="inline-flex items-center rotate-12">
                   <Image
                     src="/logo.png"
                     alt="Link4Devs Logo"
                     width={46}
                     height={46}
-                    className="relative -mb-[3px]"
+                    className="relative top-[2px]"
                   />
                 </span>{" "}
                 for
@@ -190,13 +190,13 @@ export function Hero() {
             >
               <h1 className="text-[66.22px] font-normal leading-[78.80px] tracking-[-3.97px] font-sharp-grotesk text-white whitespace-nowrap">
                 One link{" "}
-                <span className="inline-flex items-center justify-center rotate-12">
+                <span className="inline-flex items-center rotate-12">
                   <Image
                     src="/logo.png"
                     alt="Link4Devs Logo"
                     width={76}
                     height={76}
-                    className="relative -mb-[5px]"
+                    className="relative top-[4px]"
                   />
                 </span>{" "}
                 for
