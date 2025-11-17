@@ -89,7 +89,7 @@ export function DashboardLayout({
   showPreview = false,
   previewContent,
 }: DashboardLayoutProps) {
-  const { user, loading, logout } = useAuthStore();
+  const { user, loading, logout, setLoading } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -100,6 +100,18 @@ export function DashboardLayout({
       router.push("/");
     }
   }, [loading, user, router]);
+
+  // Force clear loading state after a timeout to prevent stuck loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading && user) {
+        // If we have a user but still loading, clear the loading state
+        setLoading(false);
+      }
+    }, 1000); // 1 second timeout
+    
+    return () => clearTimeout(timeout);
+  }, [loading, user, setLoading]);
 
   // Reset navigation state when pathname changes
   useEffect(() => {

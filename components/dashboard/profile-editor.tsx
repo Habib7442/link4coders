@@ -158,8 +158,8 @@ export function ProfileEditor({ initialData }: ProfileEditorProps) {
       
       if (result.success) {
         toast.success('Profile updated successfully!');
-        // Trigger a soft refresh to update the page with new data
-        router.refresh();
+        // Data is already revalidated on the server side via revalidatePath
+        // No need for router.refresh() which causes loading state issues
       } else {
         toast.error(result.error || 'Failed to update profile');
       }

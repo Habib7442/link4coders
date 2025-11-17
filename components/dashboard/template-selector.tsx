@@ -185,8 +185,8 @@ export function TemplateSelector() {
       if (result.success) {
         toast.success(result.message || 'Template applied successfully!');
         setActiveTemplate(template.slug);
-        // Optionally reload the page to show new template
-        window.location.reload();
+        // Just reload the data without full page refresh
+        await loadData();
       } else {
         toast.error(result.error || 'Failed to apply template');
       }
