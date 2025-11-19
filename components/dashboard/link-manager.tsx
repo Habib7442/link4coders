@@ -294,10 +294,10 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button
           onClick={() => handleAddLink()}
-          className="bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] text-[#18181a] hover:opacity-90"
+          className="bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] text-[#18181a] hover:opacity-90 w-full sm:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Link
@@ -313,16 +313,16 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
 
           return (
             <div key={category.key} className="glassmorphic rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-white flex items-center gap-2">
-                  <span>{category.icon}</span>
-                  {category.label}
-                  <span className="text-sm text-gray-400">({categoryLinks.length})</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+                <h3 className="text-base sm:text-lg font-medium text-white flex items-center gap-2 break-words">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{category.icon}</span>
+                  <span className="break-words">{category.label}</span>
+                  <span className="text-xs sm:text-sm text-gray-400 flex-shrink-0">({categoryLinks.length})</span>
                 </h3>
                 <Button
                   size="sm"
                   onClick={() => handleAddLink(category.key)}
-                  className="bg-white/5 hover:bg-white/10 text-[#54E0FF] border border-[#54E0FF]/20"
+                  className="bg-white/5 hover:bg-white/10 text-[#54E0FF] border border-[#54E0FF]/20 w-full sm:w-auto"
                 >
                   <Plus className="w-3 h-3 mr-1" />
                   Add
@@ -333,54 +333,54 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
                 {categoryLinks.map(link => (
                   <div
                     key={link.id}
-                    className="bg-white/5 border border-white/10 rounded-lg p-4 hover:border-[#54E0FF]/30 transition-all"
+                    className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4 hover:border-[#54E0FF]/30 transition-all"
                   >
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
                       {/* Link Image */}
                       {link.link_image && (
-                        <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
+                        <div className="relative w-full sm:w-20 h-32 sm:h-20 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
                           <Image
                             src={link.link_image}
                             alt={link.title}
                             fill
-                            className="object-cover"
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       )}
 
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-white font-medium truncate">{link.title}</h4>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                          <h4 className="text-white font-medium break-words">{link.title}</h4>
                           {link.metadata?.type === 'github_repo' && (
-                            <div className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-2 text-xs flex-wrap">
                               {link.metadata.stars !== undefined && (
-                                <span className="text-yellow-400">⭐ {link.metadata.stars}</span>
+                                <span className="text-yellow-400 flex-shrink-0">⭐ {link.metadata.stars}</span>
                               )}
                               {link.metadata.language && (
-                                <span className="text-gray-400">{link.metadata.language}</span>
+                                <span className="text-gray-400 flex-shrink-0">{link.metadata.language}</span>
                               )}
                             </div>
                           )}
                         </div>
                         {link.description && (
-                          <p className="text-sm text-gray-400 truncate">{link.description}</p>
+                          <p className="text-xs sm:text-sm text-gray-400 break-words mb-1">{link.description}</p>
                         )}
                         <a
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-[#54E0FF] hover:underline truncate block"
+                          className="text-xs text-[#54E0FF] hover:underline break-all block"
                         >
                           {link.url}
                         </a>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex sm:flex-col items-center gap-2 sm:gap-1 justify-end sm:justify-start">
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => handleToggleStatus(link.id)}
-                          className="text-gray-400 hover:text-white"
+                          className="text-gray-400 hover:text-white h-8 w-8 p-0"
                         >
                           {link.is_active ? (
                             <Eye className="w-4 h-4" />
@@ -392,7 +392,7 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
                           size="sm"
                           variant="ghost"
                           onClick={() => handleEditLink(link)}
-                          className="text-gray-400 hover:text-white"
+                          className="text-gray-400 hover:text-white h-8 w-8 p-0"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -406,7 +406,7 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
                               linkTitle: link.title
                             })
                           }
-                          className="text-red-400 hover:text-red-300"
+                          className="text-red-400 hover:text-red-300 h-8 w-8 p-0"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -422,7 +422,7 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
 
       {/* GitHub Import Dialog */}
       <Dialog open={showGitHubImport} onOpenChange={setShowGitHubImport}>
-        <DialogContent className="glassmorphic max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
+        <DialogContent className="glassmorphic w-[95vw] max-w-3xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-white">Import GitHub Repositories</DialogTitle>
             <DialogDescription className="text-gray-400">
@@ -434,12 +434,13 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
             {githubRepos.map(repo => (
               <div
                 key={repo.id}
-                className="bg-white/5 border border-white/10 rounded-lg p-4 hover:border-[#54E0FF]/30 transition-all"
+                className="bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4 hover:border-[#54E0FF]/30 transition-all"
               >
                 <div className="flex items-start gap-3">
                   <Checkbox
                     checked={selectedRepos.includes(repo.id)}
                     onCheckedChange={() => toggleRepoSelection(repo.id)}
+                    className="mt-1 flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
@@ -448,19 +449,19 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
                         alt={repo.owner.login}
                         width={24}
                         height={24}
-                        className="rounded-full"
+                        className="rounded-full flex-shrink-0"
                       />
-                      <h4 className="text-white font-medium">{repo.full_name}</h4>
+                      <h4 className="text-white font-medium break-words text-sm sm:text-base">{repo.full_name}</h4>
                     </div>
                     {repo.description && (
-                      <p className="text-sm text-gray-400 mb-2">{repo.description}</p>
+                      <p className="text-xs sm:text-sm text-gray-400 mb-2 break-words">{repo.description}</p>
                     )}
-                    <div className="flex items-center gap-3 text-xs">
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
                       {repo.language && (
-                        <span className="text-gray-400">{repo.language}</span>
+                        <span className="text-gray-400 flex-shrink-0">{repo.language}</span>
                       )}
-                      <span className="text-yellow-400">⭐ {repo.stars}</span>
-                      <span className="text-gray-400">🍴 {repo.forks}</span>
+                      <span className="text-yellow-400 flex-shrink-0">⭐ {repo.stars}</span>
+                      <span className="text-gray-400 flex-shrink-0">🍴 {repo.forks}</span>
                     </div>
                   </div>
                 </div>
@@ -468,23 +469,24 @@ export function LinkManager({ onPreviewRefresh }: LinkManagerProps) {
             ))}
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4 border-t border-white/10">
             <Button
               variant="outline"
               onClick={() => {
                 setShowGitHubImport(false);
                 setSelectedRepos([]);
               }}
-              className="border-white/20 text-gray-400 hover:text-white"
+              className="border-white/20 text-gray-400 hover:text-white w-full sm:w-auto"
             >
               Cancel
             </Button>
             <Button
               onClick={handleImportSelected}
               disabled={selectedRepos.length === 0}
-              className="bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] text-[#18181a] hover:opacity-90"
+              className="bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] text-[#18181a] hover:opacity-90 w-full sm:w-auto"
             >
-              Import {selectedRepos.length} {selectedRepos.length === 1 ? 'Repository' : 'Repositories'}
+              <span className="hidden sm:inline">Import {selectedRepos.length} {selectedRepos.length === 1 ? 'Repository' : 'Repositories'}</span>
+              <span className="sm:hidden">Import ({selectedRepos.length})</span>
             </Button>
           </div>
         </DialogContent>
