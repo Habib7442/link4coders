@@ -6,16 +6,15 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { createClient } from '@/lib/supabase-client';
 import { 
   getAllTemplates, 
-  checkTemplateAccess, 
   startTemplateTrial, 
   setUserTemplate,
   getUserSubscriptions 
 } from '@/server/actions/template.actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Crown, Sparkles, Clock, Loader2 } from 'lucide-react';
+import { Check, Crown, Sparkles, Clock, Loader2, ArrowRight, Layout } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface Template {
   id: string;
@@ -88,7 +87,7 @@ export function TemplateSelector() {
     }
   };
 
-  // Template color schemes
+  // Template color schemes for dynamic previews
   const templateColors: Record<string, { bg: string; accent: string; preview: string }> = {
     'developer-dark': { 
       bg: 'from-[#18181a] to-[#1e1e20]', 
@@ -185,7 +184,6 @@ export function TemplateSelector() {
       if (result.success) {
         toast.success(result.message || 'Template applied successfully!');
         setActiveTemplate(template.slug);
-        // Just reload the data without full page refresh
         await loadData();
       } else {
         toast.error(result.error || 'Failed to apply template');
@@ -199,220 +197,188 @@ export function TemplateSelector() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="w-8 h-8 animate-spin text-[#54E0FF]" />
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+        <p className="text-muted-foreground animate-pulse">Loading templates...</p>
       </div>
     );
   }
 
-  const freeTemplates = templates.filter(t => t.category === 'free');
-  const premiumTemplates = templates.filter(t => t.category === 'premium');
+  // Sort templates: Active first, then Premium, then Free
+  const sortedTemplates = [...templates].sort((a, b) => {
+    if (a.slug === activeTemplate) return -1;
+    if (b.slug === activeTemplate) return 1;
+    if (a.category === 'premium' && b.category === 'free') return -1;
+    if (b.category === 'premium' && a.category === 'free') return 1;
+    return 0;
+  });
 
   return (
-    <div className="space-y-8">
-      {/* Free Templates */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-white mb-2">Free Templates</h2>
-          <p className="text-sm text-[#7a7a83]">Choose from our collection of free templates</p>
+    <div className="w-full space-y-8 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row justify-between items-end gap-4 border-b border-white/5 pb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Layout className="w-6 h-6 text-primary" />
+            All Templates
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            Select a design to instantly transform your portfolio.
+          </p>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {freeTemplates.map(template => {
-            const colors = getTemplateColors(template.slug);
-            
-            return (
-            <Card 
-              key={template.id}
-              className="bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden group hover:border-[#54E0FF]/30 transition-all"
-            >
-              <CardContent className="p-0">
-                {/* Template Preview */}
-                <div className={`relative h-48 ${colors.preview} flex items-center justify-center`}>
-                  {template.thumbnail_url ? (
-                    <Image
-                      src={template.thumbnail_url}
-                      alt={template.name}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <Sparkles className="w-12 h-12 text-white/30" />
-                  )}
-                  
-                  {activeTemplate === template.slug && (
-                    <div className="absolute top-2 right-2 bg-[#54E0FF] text-[#18181a] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                      <Check className="w-3 h-3" />
-                      Active
-                    </div>
-                  )}
-                </div>
-
-                {/* Template Info */}
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-bold text-white">{template.name}</h3>
-                    <Badge variant="secondary" className="bg-green-500/20 text-green-400 border-green-500/30">
-                      Free
-                    </Badge>
-                  </div>
-
-                  <p className="text-sm text-[#7a7a83] mb-4 line-clamp-2">
-                    {template.description}
-                  </p>
-
-                  {/* Features */}
-                  <div className="space-y-1 mb-4">
-                    {template.features.slice(0, 3).map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-xs text-[#7a7a83]">
-                        <Check className="w-3 h-3 text-[#54E0FF]" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Action Button */}
-                  <Button
-                    onClick={() => handleApplyTemplate(template)}
-                    disabled={actionLoading === template.id || activeTemplate === template.slug}
-                    className="w-full bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] hover:from-[#29ADFF] hover:to-[#54E0FF] text-[#18181a] font-medium"
-                  >
-                    {actionLoading === template.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : activeTemplate === template.slug ? (
-                      'Currently Active'
-                    ) : (
-                      'Apply Template'
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            );
-          })}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+          <Sparkles className="w-4 h-4 text-yellow-400" />
+          <span>{templates.filter(t => t.category === 'premium').length} Premium</span>
+          <span className="w-1 h-1 rounded-full bg-white/20" />
+          <span>{templates.filter(t => t.category === 'free').length} Free</span>
         </div>
       </div>
 
-      {/* Premium Templates */}
-      <div>
-        <div className="mb-4">
-          <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-            <Crown className="w-5 h-5 text-yellow-400" />
-            Premium Templates
-          </h2>
-          <p className="text-sm text-[#7a7a83]">Unlock advanced templates with 7-day free trial</p>
-        </div>
+      {/* Templates Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sortedTemplates.map((template) => {
+          const isActive = activeTemplate === template.slug;
+          const isPremium = template.category === 'premium';
+          const access = hasAccess(template);
+          const subInfo = getSubscriptionInfo(template);
+          const colors = getTemplateColors(template.slug);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {premiumTemplates.map(template => {
-            const access = hasAccess(template);
-            const subInfo = getSubscriptionInfo(template);
-            const colors = getTemplateColors(template.slug);
+          return (
+            <div
+              key={template.id}
+              className={cn(
+                "group relative flex flex-col overflow-hidden rounded-2xl border transition-all duration-300",
+                isActive 
+                  ? "border-primary/50 bg-primary/5 shadow-[0_0_30px_-10px_rgba(84,224,255,0.3)]" 
+                  : "border-white/10 bg-[#18181a] hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
+              )}
+            >
+              {/* Status Badges */}
+              <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+                {isActive && (
+                  <Badge className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 border-none px-3 py-1">
+                    <Check className="w-3 h-3 mr-1" /> Active
+                  </Badge>
+                )}
+                {isPremium && !isActive && (
+                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black border-none font-bold shadow-lg shadow-orange-500/20">
+                    <Crown className="w-3 h-3 mr-1" /> Premium
+                  </Badge>
+                )}
+                {!isPremium && !isActive && (
+                  <Badge variant="secondary" className="bg-white/10 text-white backdrop-blur-md border-white/10">
+                    Free
+                  </Badge>
+                )}
+              </div>
 
-            return (
-              <Card 
-                key={template.id}
-                className="bg-white/5 backdrop-blur-md border border-white/10 overflow-hidden group hover:border-yellow-400/30 transition-all relative"
-              >
-                {/* Premium Badge */}
-                <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-[#18181a] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 z-10">
-                  <Crown className="w-3 h-3" />
-                  PREMIUM
+              {/* Subscription Status Badge */}
+              {subInfo && !isActive && (
+                <div className="absolute top-3 right-3 z-20">
+                  <Badge variant="outline" className="bg-black/60 backdrop-blur-md border-white/20 text-white">
+                    <Clock className="w-3 h-3 mr-1 text-primary" />
+                    {subInfo.type === 'trial' ? `${subInfo.daysLeft}d Trial` : 'Subscribed'}
+                  </Badge>
+                </div>
+              )}
+
+              {/* Preview Image Area */}
+              <div className={cn(
+                "relative aspect-[16/10] w-full overflow-hidden",
+                colors.preview
+              )}>
+                {template.thumbnail_url ? (
+                  <Image
+                    src={template.thumbnail_url}
+                    alt={template.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {isPremium ? (
+                      <Crown className="w-16 h-16 text-white/20" />
+                    ) : (
+                      <Layout className="w-16 h-16 text-white/20" />
+                    )}
+                  </div>
+                )}
+                
+                {/* Overlay Gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#18181a] via-transparent to-transparent opacity-60" />
+              </div>
+
+              {/* Content Area */}
+              <div className="flex flex-col flex-1 p-5">
+                <div className="mb-4">
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+                    {template.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {template.description || "A modern, professional template for your portfolio."}
+                  </p>
                 </div>
 
-                <CardContent className="p-0">
-                  {/* Template Preview */}
-                  <div className={`relative h-64 ${colors.preview} flex items-center justify-center`}>
-                    {template.thumbnail_url ? (
-                      <Image
-                        src={template.thumbnail_url}
-                        alt={template.name}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <Crown className="w-16 h-16 text-white/30" />
-                    )}
-                    
-                    {activeTemplate === template.slug && (
-                      <div className="absolute top-2 right-2 bg-[#54E0FF] text-[#18181a] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                        <Check className="w-3 h-3" />
-                        Active
-                      </div>
-                    )}
-
-                    {subInfo && (
-                      <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {subInfo.type === 'trial' ? `Trial: ${subInfo.daysLeft}d left` : 'Subscribed'}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Template Info */}
-                  <div className="p-4">
-                    <div className="mb-2">
-                      <h3 className="text-lg font-bold text-white">{template.name}</h3>
+                {/* Features List (Compact) */}
+                <div className="space-y-2 mb-6 flex-1">
+                  {template.features.slice(0, 3).map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground/80">
+                      <div className="w-1 h-1 rounded-full bg-primary/50" />
+                      {feature}
                     </div>
+                  ))}
+                </div>
 
-                    <p className="text-sm text-[#7a7a83] mb-4">
-                      {template.description}
-                    </p>
-
-                    {/* Features */}
-                    <div className="space-y-1 mb-4">
-                      {template.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs text-[#7a7a83]">
-                          <Check className="w-3 h-3 text-yellow-400" />
-                          {feature}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-2">
-                      {!access ? (
+                {/* Action Button */}
+                <div className="mt-auto pt-4 border-t border-white/5">
+                  {!access ? (
+                    <Button
+                      onClick={() => handleStartTrial(template)}
+                      disabled={actionLoading === template.id}
+                      className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-bold shadow-lg shadow-orange-500/10 transition-all"
+                    >
+                      {actionLoading === template.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
                         <>
-                          <Button
-                            onClick={() => handleStartTrial(template)}
-                            disabled={actionLoading === template.id}
-                            className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 hover:from-yellow-500 hover:to-orange-500 text-[#18181a] font-bold"
-                          >
-                            {actionLoading === template.id ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <>
-                                <Clock className="w-4 h-4 mr-2" />
-                                Start 7-Day Free Trial
-                              </>
-                            )}
-                          </Button>
-                          <p className="text-xs text-center text-[#7a7a83]">
-                            No credit card required
-                          </p>
+                          Start Free Trial <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleApplyTemplate(template)}
+                      disabled={actionLoading === template.id || isActive}
+                      variant={isActive ? "outline" : "default"}
+                      className={cn(
+                        "w-full font-medium transition-all",
+                        isActive 
+                          ? "border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 cursor-default" 
+                          : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/10"
+                      )}
+                    >
+                      {actionLoading === template.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : isActive ? (
+                        <>
+                          <Check className="w-4 h-4 mr-2" /> Applied
                         </>
                       ) : (
-                        <Button
-                          onClick={() => handleApplyTemplate(template)}
-                          disabled={actionLoading === template.id || activeTemplate === template.slug}
-                          className="w-full bg-gradient-to-r from-[#54E0FF] to-[#29ADFF] hover:from-[#29ADFF] hover:to-[#54E0FF] text-[#18181a] font-medium"
-                        >
-                          {actionLoading === template.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : activeTemplate === template.slug ? (
-                            'Currently Active'
-                          ) : (
-                            'Apply Template'
-                          )}
-                        </Button>
+                        'Apply Template'
                       )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                    </Button>
+                  )}
+                  
+                  {!access && (
+                    <p className="text-[10px] text-center text-muted-foreground mt-2">
+                      7-day free trial • No credit card required
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

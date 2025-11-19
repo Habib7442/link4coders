@@ -17,17 +17,7 @@ function TemplatesLoading() {
 export default function TemplatesPage() {
   return (
     <DashboardLayout>
-      <div className="w-full mx-auto dashboard-form-container mobile-safe-area">
-        {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-[32px] font-medium leading-[40px] tracking-[-0.96px] font-sharp-grotesk gradient-text-primary mb-2">
-            Templates
-          </h1>
-          <p className="text-[14px] font-light leading-[20px] tracking-[-0.42px] text-[#7a7a83] font-sharp-grotesk">
-            Choose a template that matches your style. Try premium templates free for 7 days!
-          </p>
-        </div>
-
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mobile-safe-area">
         {/* Template Selector */}
         <Suspense fallback={<TemplatesLoading />}>
           <TemplateSelector />
